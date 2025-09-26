@@ -1,49 +1,61 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
 export default function HomeScreen() {
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [email, setEmail] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
 
-  const handleLogin = () => {
-    // Aquí podrías agregar la lógica para enviar los datos a tu backend
-    // Redirige a la pantalla "Profile"
-    navigation.navigate('Profile');
+  const handleRegister = async () => {
+    try {
+      const response = await fetch('http://10.4.12.100:3000/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          correo,
+          usuario,
+          contraseña: password
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        Alert.alert('Éxito', 'Usuario registrado correctamente');
+        setCorreo('');
+        setUsuario('');
+        setPassword('');
+      } else {
+        Alert.alert('Error', data.error || 'Error al registrar usuario');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo conectar al servidor');
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
+      <Text style={styles.title}>Registro de Usuario</Text>
       <TextInput
         style={styles.input}
-        placeholder="Nombre"
-        onChangeText={setNombre}
-        value={nombre}
+        placeholder="Correo"
+        value={correo}
+        onChangeText={setCorreo}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
-        placeholder="Apellido"
-        onChangeText={setApellido}
-        value={apellido}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        onChangeText={setEmail}
-        value={email}
+        placeholder="Usuario"
+        value={usuario}
+        onChangeText={setUsuario}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        onChangeText={setPassword}
         value={password}
+        onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Ingresar" onPress={handleLogin} />
+      <Button title="Registrar" onPress={handleRegister} />
     </View>
   );
 }

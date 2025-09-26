@@ -1,29 +1,37 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cors = require('cors');
-const app = express();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configura la conexión a MySQL
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
-  password: '', // tu contraseña de MySQL
-  database: 'users'
+  user: 'root',       
+  password: '',
+  database: 'deltadb'
 });
 
-// Ruta para agregar usuario
-app.post('/addUser', (req, res) => {
-  const { nombre, apellido, correo, contraseña } = req.body;
-  const sql = 'INSERT INTO usuarios (nombre, apellido, correo, contraseña) VALUES (?, ?, ?, ?)';
-  db.query(sql, [nombre, apellido, correo, contraseña], (err, result) => {
-    if (err) return res.status(500).json({ error: err });
-    res.json({ success: true, id: result.insertId });
-  });
+
+//metodo post para guardar usuarios
+app.post('/usuarios', (req, res) => {
+  const { correo, usuario, contraseña } = req.body;
+  if (!correo || !usuario || !contraseña) {
+    return res.status(400).json({ error: 'Faltan datos' });
+  }
+
+  // guardar usuario en la base de datos
+  db.query(
+    'INSERT INTO usuarios (correo, usuario, contraseña) VALUES (?, ?, ?)',
+    [correo, usuario, contraseña],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err });
+      res.json({ mensaje: 'Usuario guardado', id: result.insertId });
+    }
+  );
 });
 
-app.listen(3001, () => {
-  console.log('Servidor backend corriendo en http://localhost:3001');
+app.listen(3000, () => {
+  console.log('Servidor backend corriendo en puerto 3000');
 });
