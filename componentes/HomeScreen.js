@@ -8,7 +8,7 @@ export default function HomeScreen() {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch('http://10.4.12.100:3000/usuarios', {
+      const response = await fetch('http://10.215.82.125:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
