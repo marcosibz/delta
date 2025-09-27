@@ -16,10 +16,13 @@ export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
         </View>
       </View>
 
-      {/* Botón para alternar tema */}
-      <View style={styles.themeToggle}>
+      {/* Switch para modo oscuro */}
+      <View style={[
+        styles.themeToggle,
+        { backgroundColor: isDarkMode ? '#1e1e1e' : '#ffffff' }
+      ]}>
         <Text style={{ color: isDarkMode ? '#fff' : '#000', fontSize: 16 }}>
-          Modo oscuro
+          {isDarkMode ? 'Modo oscuro' : 'Modo claro'}
         </Text>
         <Switch
           value={isDarkMode}
@@ -76,7 +79,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     marginHorizontal: 18,
     borderRadius: 12,
-    backgroundColor: '#1e1e1e',
     marginBottom: 20,
   },
   menu: { marginTop: 10 },

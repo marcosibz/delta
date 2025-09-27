@@ -8,11 +8,12 @@ import HomeScreen from './componentes/HomeScreen';
 import CartScreen from './componentes/CartScreen';
 import SettingsScreen from './componentes/SettingsScreen';
 import ProfileScreen from './componentes/ProfileScreen';
+import LoginScreen from './componentes/LoginScreen';
 
 const Tab = createBottomTabNavigator();
 
 export default function App() {
-  // Estado para modo oscuro/claro
+  // Estado global para el modo oscuro
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   return (
@@ -27,7 +28,7 @@ export default function App() {
             height: 60,
           },
           tabBarActiveTintColor: isDarkMode ? '#03DAC6' : '#007AFF',
-          tabBarInactiveTintColor: isDarkMode ? '#888' : '#888',
+          tabBarInactiveTintColor: '#888',
           tabBarIcon: ({ color, size }) => {
             let iconName;
             switch (route.name) {
@@ -43,6 +44,9 @@ export default function App() {
               case 'Ajustes':
                 iconName = 'settings-outline';
                 break;
+              case 'Login':
+                iconName = 'log-in-outline';
+                break;
             }
             return <Ionicons name={iconName} size={size} color={color} />;
           },
@@ -54,6 +58,9 @@ export default function App() {
         </Tab.Screen>
         <Tab.Screen name="Carrito" component={CartScreen} />
         <Tab.Screen name="Ajustes" component={SettingsScreen} />
+        <Tab.Screen name="Login">
+          {() => <LoginScreen isDarkMode={isDarkMode} />}
+        </Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>
   );
