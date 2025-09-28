@@ -57,19 +57,21 @@ export default function App() {
   const [registrado, setRegistrado] = useState(false);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!registrado ? (
+  <NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!registrado ? (
+        <>
           <Stack.Screen name="Registro">
             {props => <RegistroScreen {...props} onRegistrado={() => setRegistrado(true)} />}
           </Stack.Screen>
-        ) : (
-          <Stack.Screen name="MainTabs" component={MainTabs} />
-        )}
           <Stack.Screen name="Login">
             {props => <LoginScreen {...props} onLogin={() => setRegistrado(true)} />}
           </Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+        </>
+      ) : (
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+      )}
+    </Stack.Navigator>
+  </NavigationContainer>
+);
 }

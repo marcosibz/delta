@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
-export default function LoginScreen({ navigation, route }) {
-  const { onLogin } = route.params || {};
+export default function LoginScreen({ navigation, route, onLogin }) {
+  const realOnLogin = onLogin || (route?.params?.onLogin);
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
@@ -15,7 +15,7 @@ export default function LoginScreen({ navigation, route }) {
       });
       const data = await response.json();
       if (response.ok && data.ok) {
-        onLogin && onLogin();
+        if (realOnLogin) realOnLogin();
       } else {
         Alert.alert('Error', 'Datos incorrectos');
       }
