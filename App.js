@@ -10,7 +10,8 @@ import CartScreen from './componentes/CartScreen';
 import SettingsScreen from './componentes/SettingsScreen';
 import ProfileScreen from './componentes/ProfileScreen';
 import DolarScreen from './componentes/DolarScreen';
-import RegistroScreen from './componentes/RegistroScreen'; // importa tu pantalla de registro
+import RegistroScreen from './componentes/RegistroScreen';
+import LoginScreen from './componentes/LoginScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -65,6 +66,9 @@ export default function App() {
         ) : (
           <Stack.Screen name="MainTabs" component={MainTabs} />
         )}
+          <Stack.Screen name="Login">
+            {props => <LoginScreen {...props} onLogin={() => setRegistrado(true)} />}
+          </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

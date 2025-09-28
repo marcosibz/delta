@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 
-export default function RegistroScreen({ onRegistrado }) {
+export default function RegistroScreen({ navigation, onRegistrado }) {
   const [correo, setCorreo] = useState('');
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
@@ -57,6 +58,12 @@ export default function RegistroScreen({ onRegistrado }) {
         secureTextEntry
       />
       <Button title="Registrar" onPress={handleRegister} />
+
+      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+      <Text style={{ color: 'blue', textAlign: 'center', marginTop: 16 }}>
+      ¿Tienes una cuenta? Acceder
+      </Text>
+      </TouchableOpacity>
     </View>
   );
 }

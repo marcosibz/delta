@@ -32,6 +32,22 @@ app.post('/usuarios', (req, res) => {
   );
 });
 
+app.post('/login', (req, res) => {
+  const { correo, contraseña } = req.body;
+  db.query(
+    'SELECT * FROM usuarios WHERE correo = ? AND contraseña = ?',
+    [correo, contraseña],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err });
+      if (results.length > 0) {
+        res.json({ ok: true });
+      } else {
+        res.json({ ok: false });
+      }
+    }
+  );
+});
+
 app.listen(3000, () => {
   console.log('Servidor backend corriendo en puerto 3000');
 });

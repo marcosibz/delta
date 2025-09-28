@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
-export default function LoginScreen() {
-  const [email, setEmail] = useState('');
+export default function LoginScreen({ navigation, route }) {
+  const { onLogin } = route.params || {};
+  const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (email === '' || password === '') {
-      Alert.alert('Error', 'Por favor completa todos los campos.');
-    } else {
-      // Aquí podrías conectar con una API o base de datos
-      Alert.alert('¡Bienvenido!', `Correo: ${email}`);
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://192.168.100.28:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo, contraseña: password }),
+      });
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        onLogin && onLogin();
+      } else {
+        Alert.alert('Error', 'Datos incorrectos');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo conectar al servidor');
     }
   };
 
@@ -18,44 +28,40 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Iniciar Sesión</Text>
       <TextInput
-        placeholder="Correo electrónico"
         style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
+        placeholder="Correo"
+        value={correo}
+        onChangeText={setCorreo}
         autoCapitalize="none"
       />
       <TextInput
-        placeholder="Contraseña"
         style={styles.input}
+        placeholder="Contraseña"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Iniciar Sesión" onPress={handleLogin} />
+      <Button title="Acceder" onPress={handleLogin} />
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
     marginBottom: 20,
-    alignSelf: 'center',
+    textAlign: 'center',
   },
   input: {
-    height: 50,
-    borderColor: '#999',
+    height: 40,
+    borderColor: '#ccc',
     borderWidth: 1,
     marginBottom: 15,
     paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: '#fff',
   },
 });
