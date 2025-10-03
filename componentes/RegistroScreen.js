@@ -9,7 +9,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch('http://192.168.100.28:3000/usuarios', {
+      const response = await fetch('http://10.94.111.125:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
