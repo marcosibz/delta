@@ -41,7 +41,6 @@ export default function LoginScreen({ navigation, route, onLogin }) {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
       />
       <Button title="Acceder" onPress={handleLogin} />
     </View>
