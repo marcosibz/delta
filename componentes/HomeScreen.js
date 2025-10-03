@@ -28,7 +28,7 @@ const ProductCard = ({ product }) => {
         <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
           {product.name}
         </Text>
-        <Text style={styles.productPrice} style={{ color: colors.primary }}>
+        <Text style={[styles.productPrice, { color: colors.primary }]}>
           ${product.price}
         </Text>
       </View>
