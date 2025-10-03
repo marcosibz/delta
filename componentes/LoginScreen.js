@@ -16,7 +16,7 @@ export default function LoginScreen({ navigation, route, onLogin }) {
       const data = await response.json();
       if (response.ok && data.ok) {
         if (realOnLogin) realOnLogin();
-      } else {
+    } else {
         Alert.alert('Error', 'Datos incorrectos');
       }
     } catch (error) {
@@ -34,9 +34,11 @@ export default function LoginScreen({ navigation, route, onLogin }) {
         onChangeText={setCorreo}
         autoCapitalize="none"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
+        secureTextEntry
         value={password}
         onChangeText={setPassword}
         secureTextEntry

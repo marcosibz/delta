@@ -14,7 +14,6 @@ import RegistroScreen from './componentes/RegistroScreen';
 import LoginScreen from './componentes/LoginScreen';
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
 
 function MainTabs() {
   return (
