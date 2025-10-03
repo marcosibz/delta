@@ -1,34 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+// 1. Importa el hook useTheme
+import { useTheme } from '@react-navigation/native';
 
 export default function HomeScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation(); // <--- Importante
-
-  const handleLogin = () => {
-    // Redirige a la pantalla "Profile"
-    navigation.navigate('Profile');
-  };
+  // 2. Obtiene el objeto 'colors' del tema actual
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        onChangeText={setEmail}
-        value={email}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry
-      />
-      <Button title="Ingresar" onPress={handleLogin} />
+    // 3. Usa 'colors.background' para el color de fondo del contenedor
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      
+      {/* 4. Usa 'colors.text' para el color del texto. 
+          Este será blanco en modo oscuro y negro en modo claro. */}
+      <Text style={[styles.title, { color: colors.text }]}>
+        ¡Hola! Soy texto con inversión de color
+      </Text>
+      
+      <Text style={{ color: colors.text, marginTop: 10 }}>
+        El tema actual es: {colors.card === 'rgb(1, 1, 1)' ? 'Modo Oscuro' : 'Modo Claro'}
+      </Text>
     </View>
   );
 }
@@ -36,19 +27,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    // NO definas el 'backgroundColor' aquí, usa el estilo en línea
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 15,
-    paddingHorizontal: 10,
+    fontWeight: 'bold',
   },
 });

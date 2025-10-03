@@ -1,67 +1,40 @@
-import 'react-native-gesture-handler';
-import React, { useState } from 'react';
-import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+// Importamos useTheme de react-navigation para acceder a los colores
+import { useTheme } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 
-import HomeScreen from './componentes/HomeScreen';
-import CartScreen from './componentes/CartScreen';
-import SettingsScreen from './componentes/SettingsScreen';
-import ProfileScreen from './componentes/ProfileScreen';
-import LoginScreen from './componentes/LoginScreen';
-
-const Tab = createBottomTabNavigator();
-
-export default function App() {
-  // Estado global para el modo oscuro
-  const [isDarkMode, setIsDarkMode] = useState(true);
+export default function HomeScreen() {
+  // Obtenemos los colores del tema actual
+  const { colors } = useTheme();
 
   return (
-    <NavigationContainer theme={isDarkMode ? DarkTheme : DefaultTheme}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarStyle: {
-            backgroundColor: isDarkMode ? '#1f1f1f' : '#ffffff',
-            borderTopColor: isDarkMode ? '#2a2a2a' : '#e0e0e0',
-            paddingBottom: 4,
-            height: 60,
-          },
-          tabBarActiveTintColor: isDarkMode ? '#03DAC6' : '#007AFF',
-          tabBarInactiveTintColor: '#888',
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-            switch (route.name) {
-              case 'Inicio':
-                iconName = 'home-outline';
-                break;
-              case 'Mi Perfil':
-                iconName = 'person-outline';
-                break;
-              case 'Carrito':
-                iconName = 'cart-outline';
-                break;
-              case 'Ajustes':
-                iconName = 'settings-outline';
-                break;
-              case 'Login':
-                iconName = 'log-in-outline';
-                break;
-            }
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-        })}
-      >
-        <Tab.Screen name="Inicio" component={HomeScreen} />
-        <Tab.Screen name="Mi Perfil">
-          {() => <ProfileScreen isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
-        </Tab.Screen>
-        <Tab.Screen name="Carrito" component={CartScreen} />
-        <Tab.Screen name="Ajustes" component={SettingsScreen} />
-        <Tab.Screen name="Login">
-          {() => <LoginScreen isDarkMode={isDarkMode} />}
-        </Tab.Screen>
-      </Tab.Navigator>
-    </NavigationContainer>
+    // Aplicamos 'colors.background' para el fondo del contenedor principal
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      
+      {/* Aplicamos 'colors.text' para el color del texto */}
+      <Text style={[styles.title, { color: colors.text }]}>
+        ¡Bienvenido a la Tienda!
+      </Text>
+      <Text style={{ color: colors.text, fontSize: 16 }}>
+        Esta pantalla cambia automáticamente de color.
+      </Text>
+
+      {/* La StatusBar también debe adaptarse al modo oscuro/claro */}
+      <StatusBar style={colors.background === '#000' ? 'light' : 'dark'} />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+});
