@@ -1,77 +1,68 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
-export default function LoginScreen({ isDarkMode }) {
-  const [email, setEmail] = useState('');
+export default function LoginScreen({ navigation, route, onLogin }) {
+  const realOnLogin = onLogin || (route?.params?.onLogin);
+  const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
-  return (
-    <View style={[styles.container, { backgroundColor: isDarkMode ? '#121212' : '#ffffff' }]}>
-      <Text style={[styles.title, { color: isDarkMode ? '#ffffff' : '#000000' }]}>
-        Iniciar Sesión
-      </Text>
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('http://192.168.100.28:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo, contraseña: password }),
+      });
+      const data = await response.json();
+      if (response.ok && data.ok) {
+        if (realOnLogin) realOnLogin();
+    } else {
+        Alert.alert('Error', 'Datos incorrectos');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo conectar al servidor');
+    }
+  };
 
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Iniciar Sesión</Text>
       <TextInput
-        style={[
-          styles.input,
-          {
-            backgroundColor: isDarkMode ? '#1e1e1e' : '#f0f0f0',
-            color: isDarkMode ? '#ffffff' : '#000000',
-            borderColor: isDarkMode ? '#03DAC6' : '#cccccc',
-          },
-        ]}
-        placeholder="Correo electrónico"
-        placeholderTextColor={isDarkMode ? '#aaaaaa' : '#555555'}
-        value={email}
-        onChangeText={setEmail}
+        style={styles.input}
+        placeholder="Correo"
+        value={correo}
+        onChangeText={setCorreo}
+        autoCapitalize="none"
       />
 
       <TextInput
-        style={[
-          styles.input,
-          {
-            backgroundColor: isDarkMode ? '#1e1e1e' : '#f0f0f0',
-            color: isDarkMode ? '#ffffff' : '#000000',
-            borderColor: isDarkMode ? '#03DAC6' : '#cccccc',
-          },
-        ]}
+        style={styles.input}
         placeholder="Contraseña"
-        placeholderTextColor={isDarkMode ? '#aaaaaa' : '#555555'}
+        secureTextEntry
         value={password}
         onChangeText={setPassword}
-        secureTextEntry
       />
-
-      <View
-        style={[
-          styles.buttonContainer,
-          { backgroundColor: isDarkMode ? '#03DAC6' : '#007AFF' },
-        ]}
-      >
-        <Button
-          title="Entrar"
-          color={isDarkMode ? '#121212' : '#ffffff'}
-          onPress={() => alert('Iniciaste sesión')}
-        />
-      </View>
+      <Button title="Acceder" onPress={handleLogin} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
   input: {
-    height: 45,
+    height: 40,
+    borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 8,
     marginBottom: 15,
     paddingHorizontal: 10,
   },
-  buttonContainer: {
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
 });
-
-
