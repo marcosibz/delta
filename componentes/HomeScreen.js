@@ -1,27 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-// Importamos useTheme de react-navigation para acceder a los colores y la propiedad 'dark'
 import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-
-// Datos de productos simulados
-const DUMMY_PRODUCTS = [
-  { id: '1', name: 'Camiseta Básica Oversize', price: '25.00', image: 'https://placehold.co/150x200/525252/FFFFFF?text=CAMISETA' },
-  { id: '2', name: 'Jeans Slim Fit Negro', price: '55.50', image: 'https://placehold.co/150x200/262626/FFFFFF?text=JEANS' },
-  { id: '3', name: 'Sudadera con Capucha', price: '45.99', image: 'https://placehold.co/150x200/94A3B8/000000?text=SUDADERA' },
-  { id: '4', name: 'Chaqueta de Mezclilla', price: '79.99', image: 'https://placehold.co/150x200/3B82F6/FFFFFF?text=CHAQUETA' },
-  { id: '5', name: 'Vestido Floral Verano', price: '60.00', image: 'https://placehold.co/150x200/F472B6/FFFFFF?text=VESTIDO' },
-];
+import { Ionicons } from '@expo/vector-icons';
+// Importa el hook del carrito para acceder a las funciones globales
+import { useCart } from './CartContext'; 
 
 // Componente para la tarjeta de producto
-const ProductCard = ({ product }) => {
-  const { colors } = useTheme();
+const ProductCard = ({ product, addToCart, colors }) => {
 
   return (
-    <TouchableOpacity 
+    <View 
       style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
-      onPress={() => console.log('Ver detalle de: ', product.name)}
-      activeOpacity={0.7}
     >
       <Image source={{ uri: product.image }} style={styles.productImage} />
       <View style={styles.infoContainer}>
@@ -29,22 +19,41 @@ const ProductCard = ({ product }) => {
           {product.name}
         </Text>
         <Text style={[styles.productPrice, { color: colors.primary }]}>
-          ${product.price}
+          ${product.price.toFixed(2)}
         </Text>
+        
+        {/* Botón de Añadir al Carrito: Llama a la función del contexto */}
+        <TouchableOpacity 
+          style={[styles.addButton, { backgroundColor: colors.notification }]}
+          onPress={() => addToCart(product)}
+        >
+          <Ionicons name="cart-outline" size={20} color={colors.background} />
+          <Text style={styles.addText}>Añadir</Text>
+        </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
 
 export default function HomeScreen() {
-  // Obtenemos los colores y la propiedad 'dark' del tema actual
   const { colors, dark } = useTheme();
+  
+  // Obtenemos las funciones del carrito (addToCart) y la lista de productos (getProducts)
+  const { addToCart, getProducts } = useCart();
 
-  // El estilo de la StatusBar debe ser 'light' cuando el tema es oscuro (dark === true)
+  // Obtenemos la lista de productos base
+  const DUMMY_PRODUCTS = getProducts();
+
   const statusBarStyle = dark ? 'light' : 'dark';
 
-  const renderItem = ({ item }) => <ProductCard product={item} />;
+  const renderItem = ({ item }) => (
+    <ProductCard 
+        product={item} 
+        addToCart={addToCart} // Pasamos la función del contexto a la tarjeta
+        colors={colors}
+    />
+  );
 
   return (
     <View style={[styles.fullContainer, { backgroundColor: colors.background }]}>
@@ -55,8 +64,7 @@ export default function HomeScreen() {
           DELTASTYLE Store
         </Text>
         <TouchableOpacity style={styles.searchButton}>
-          {/* Aquí podrías usar Ionicons para un icono de búsqueda */}
-          <Text style={{ color: colors.primary, fontSize: 16 }}>Buscar</Text>
+          <Ionicons name="search-outline" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
       {/* --- Fin Encabezado --- */}
@@ -85,6 +93,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
+    paddingTop: 0, 
   },
   header: {
     paddingTop: 40, // Espacio para el notch/barra de estado
@@ -104,7 +113,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 10,
-    paddingTop: 10,
+    paddingBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
@@ -128,22 +137,40 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 5,
+    paddingBottom: 10,
   },
   productImage: {
     width: '100%',
     height: 180,
     resizeMode: 'cover',
+    marginBottom: 5,
   },
   infoContainer: {
     padding: 8,
+    alignItems: 'center',
   },
   productName: {
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 4,
+    textAlign: 'center',
   },
   productPrice: {
     fontSize: 16,
     fontWeight: 'bold',
+    marginBottom: 8,
   },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 5,
+  },
+  addText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontWeight: 'bold',
+  }
 });

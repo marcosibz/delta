@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Alert } from 'react-native'; 
 import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-
-// Datos iniciales simulados del carrito
-const INITIAL_CART_ITEMS = [
-  { id: '1', name: 'Camiseta Básica Oversize', price: 25.00, image: 'https://placehold.co/80x100/525252/FFFFFF?text=T-SHIRT', quantity: 1 },
-  { id: '3', name: 'Sudadera con Capucha', price: 45.99, image: 'https://placehold.co/80x100/94A3B8/000000?text=HOODIE', quantity: 2 },
-];
+// Importa el hook para acceder a los datos y funciones del carrito
+import { useCart } from './CartContext'; 
 
 // --- Componente de la Tarjeta de Artículo del Carrito ---
-const CartItemCard = ({ item, colors, updateQuantity, removeItem }) => {
+const CartItemCard = ({ item, colors, updateItemQuantity, confirmRemoveItem }) => {
   return (
     <View style={[styles.itemCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
       
@@ -34,7 +30,7 @@ const CartItemCard = ({ item, colors, updateQuantity, removeItem }) => {
           <TouchableOpacity 
             style={[styles.qtyButton, { backgroundColor: colors.notification, borderColor: colors.border }]} 
             // Disminuir cantidad
-            onPress={() => updateQuantity(item.id, -1)}
+            onPress={() => updateItemQuantity(item.id, -1)}
             disabled={item.quantity <= 1} // Deshabilita si la cantidad es 1
           >
             <Text style={{ color: colors.background, fontWeight: 'bold' }}>-</Text>
@@ -45,17 +41,17 @@ const CartItemCard = ({ item, colors, updateQuantity, removeItem }) => {
           <TouchableOpacity 
             style={[styles.qtyButton, { backgroundColor: colors.notification, borderColor: colors.border }]} 
             // Aumentar cantidad
-            onPress={() => updateQuantity(item.id, 1)}
+            onPress={() => updateItemQuantity(item.id, 1)}
           >
             <Text style={{ color: colors.background, fontWeight: 'bold' }}>+</Text>
           </TouchableOpacity>
         </View>
       </View>
       
-      {/* Botón de Eliminar */}
+      {/* Botón de Eliminar - Llama a la función de confirmación */}
       <TouchableOpacity 
         style={styles.deleteButton}
-        onPress={() => removeItem(item.id)}
+        onPress={() => confirmRemoveItem(item)} // Llama a la función de alerta
       >
         <Ionicons name="trash-outline" size={24} color={colors.text} />
       </TouchableOpacity>
@@ -66,27 +62,38 @@ const CartItemCard = ({ item, colors, updateQuantity, removeItem }) => {
 // --- Componente Principal de la Pantalla de Carrito ---
 export default function CartScreen() {
   const { colors, dark } = useTheme();
-  // Estado local que almacena los artículos del carrito
-  const [cartItems, setCartItems] = useState(INITIAL_CART_ITEMS);
+  
+  // 1. Obtiene el estado y las funciones del carrito del contexto
+  const { cartItems, subtotal, updateItemQuantity } = useCart();
 
-  // Función para actualizar la cantidad: busca el ID y modifica el campo quantity
-  const updateQuantity = (id, change) => {
-    setCartItems(currentItems => {
-      // Usamos map para crear un nuevo array inmutable
-      return currentItems.map(item => 
-        item.id === id ? { ...item, quantity: item.quantity + change } : item
-      );
-    });
-  };
-
-  // Función para eliminar un artículo: filtra y quita el ID
+  // Función interna para la eliminación real
   const removeItem = (id) => {
-    // Usamos filter para devolver todos los items excepto el que tiene el ID dado
-    setCartItems(currentItems => currentItems.filter(item => item.id !== id));
+    // Para eliminar completamente, establecemos el cambio como el negativo de la cantidad actual.
+    const itemToRemove = cartItems.find(item => item.id === id);
+    if (itemToRemove) {
+      updateItemQuantity(id, -itemToRemove.quantity);
+    }
   };
 
-  // Calcula el subtotal total (se recalcula en cada render)
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // 2. Función que muestra la alerta de confirmación (USANDO Alert)
+  const confirmRemoveItem = (item) => {
+    Alert.alert(
+      "Confirmar Eliminación",
+      `¿Estás seguro de que quieres eliminar ${item.name} del carrito?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel"
+        },
+        { 
+          text: "Eliminar", 
+          onPress: () => removeItem(item.id), // Llama a la función de eliminación si el usuario confirma
+          style: "destructive"
+        }
+      ],
+      { cancelable: true }
+    );
+  };
 
   // Determina el estilo de la barra de estado para adaptabilidad
   const statusBarStyle = dark ? 'light' : 'dark';
@@ -95,8 +102,8 @@ export default function CartScreen() {
     <CartItemCard 
       item={item} 
       colors={colors} 
-      updateQuantity={updateQuantity} 
-      removeItem={removeItem} 
+      updateItemQuantity={updateItemQuantity} 
+      confirmRemoveItem={confirmRemoveItem} // Pasa la función de confirmación a la tarjeta
     />
   );
 
@@ -138,7 +145,7 @@ export default function CartScreen() {
           </View>
           <TouchableOpacity style={[styles.checkoutButton, { backgroundColor: colors.primary }]}>
             <Text style={styles.checkoutText}>
-              Pagar (${(subtotal * 1.05).toFixed(2)}) {/* Simulación de cálculo total */}
+              Pagar (${(subtotal * 1.05).toFixed(2)}) {/* Simulación de cálculo total con impuesto del 5% */}
             </Text>
           </TouchableOpacity>
         </View>
@@ -260,4 +267,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
