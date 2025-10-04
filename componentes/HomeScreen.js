@@ -3,17 +3,28 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react
 import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-// Importa el hook del carrito para acceder a las funciones globales
+// Importa el hook del carrito para acceder a las funciones globales (addToCart, getProducts)
 import { useCart } from './CartContext'; 
 
-// Componente para la tarjeta de producto
+// Componente para la tarjeta de producto individual
 const ProductCard = ({ product, addToCart, colors }) => {
+
+  // La función addToCart se recibe de HomeScreen y usa el contexto
+  const handleAddToCart = () => {
+    addToCart(product);
+    // Opcional: Podrías añadir una pequeña notificación aquí (e.g., Toast)
+  };
 
   return (
     <View 
       style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
     >
-      <Image source={{ uri: product.image }} style={styles.productImage} />
+      <Image 
+        source={{ uri: product.image }} 
+        style={styles.productImage} 
+        // Fallback de imagen por si la URL no carga (opcional, pero buena práctica)
+        onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+      />
       <View style={styles.infoContainer}>
         <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
           {product.name}
@@ -25,7 +36,7 @@ const ProductCard = ({ product, addToCart, colors }) => {
         {/* Botón de Añadir al Carrito: Llama a la función del contexto */}
         <TouchableOpacity 
           style={[styles.addButton, { backgroundColor: colors.notification }]}
-          onPress={() => addToCart(product)}
+          onPress={handleAddToCart}
         >
           <Ionicons name="cart-outline" size={20} color={colors.background} />
           <Text style={styles.addText}>Añadir</Text>
@@ -37,20 +48,22 @@ const ProductCard = ({ product, addToCart, colors }) => {
 
 
 export default function HomeScreen() {
+  // Obtiene colores y estado de modo oscuro del tema de navegación
   const { colors, dark } = useTheme();
   
-  // Obtenemos las funciones del carrito (addToCart) y la lista de productos (getProducts)
+  // Obtenemos las funciones y datos necesarios del contexto del carrito
   const { addToCart, getProducts } = useCart();
 
-  // Obtenemos la lista de productos base
+  // Obtenemos la lista de productos base (del CartContext)
   const DUMMY_PRODUCTS = getProducts();
 
+  // Ajusta el color de la barra de estado (hora, batería) según el tema
   const statusBarStyle = dark ? 'light' : 'dark';
 
   const renderItem = ({ item }) => (
     <ProductCard 
         product={item} 
-        addToCart={addToCart} // Pasamos la función del contexto a la tarjeta
+        addToCart={addToCart} // Pasamos la función del contexto
         colors={colors}
     />
   );
@@ -74,7 +87,7 @@ export default function HomeScreen() {
         data={DUMMY_PRODUCTS}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        numColumns={2}
+        numColumns={2} // Muestra 2 productos por fila
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={() => (
@@ -96,7 +109,7 @@ const styles = StyleSheet.create({
     paddingTop: 0, 
   },
   header: {
-    paddingTop: 40, // Espacio para el notch/barra de estado
+    paddingTop: 40, // Margen superior para la barra de estado (notch)
     paddingHorizontal: 20,
     paddingBottom: 10,
     flexDirection: 'row',
@@ -136,7 +149,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 5,
+    elevation: 5, // Android shadow
     paddingBottom: 10,
   },
   productImage: {
