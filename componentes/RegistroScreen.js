@@ -32,7 +32,6 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
       Alert.alert('Error', 'No se pudo conectar al servidor');
     }
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registro de Usuario</Text>
