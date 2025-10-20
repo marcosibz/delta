@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 
 export default function RegistroScreen({ navigation, onRegistrado }) {
   const [correo, setCorreo] = useState('');
@@ -24,7 +23,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
         setCorreo('');
         setUsuario('');
         setPassword('');
-        onRegistrado(); // Cambia a la pantalla principal
+        onRegistrado();
       } else {
         Alert.alert('Error', data.error || 'Error al registrar usuario');
       }
@@ -36,33 +35,42 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registro de Usuario</Text>
+
       <TextInput
         style={styles.input}
         placeholder="Correo"
+        placeholderTextColor="#7a7a7a"
         value={correo}
         onChangeText={setCorreo}
         autoCapitalize="none"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Usuario"
+        placeholderTextColor="#7a7a7a"
         value={usuario}
         onChangeText={setUsuario}
         autoCapitalize="none"
       />
+
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
+        placeholderTextColor="#7a7a7a"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Registrar" onPress={handleRegister} />
+
+      <View style={styles.buttonContainer}>
+        <Button title="Registrar" color="#007bff" onPress={handleRegister} />
+      </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-      <Text style={{ color: 'blue', textAlign: 'center', marginTop: 16 }}>
-      ¿Tienes una cuenta? Acceder
-      </Text>
+        <Text style={styles.loginText}>
+          ¿Tienes una cuenta? <Text style={styles.link}>Acceder</Text>
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -71,19 +79,45 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#e9f2ff', // fondo azul suave
     justifyContent: 'center',
     paddingHorizontal: 20,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#0056b3', // azul oscuro del título
+    marginBottom: 25,
     textAlign: 'center',
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
+    height: 45,
+    width: '100%',
+    borderColor: '#007bff',
+    borderWidth: 1.5,
+    borderRadius: 8,
     marginBottom: 15,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
+    backgroundColor: '#f8fbff',
+    fontSize: 16,
+    color: '#333',
+  },
+  buttonContainer: {
+    width: '100%',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 10,
+    elevation: 3, // sombra del botón
+  },
+  loginText: {
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 16,
+    fontSize: 15,
+  },
+  link: {
+    color: '#007bff',
+    fontWeight: 'bold',
   },
 });

@@ -3,42 +3,32 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react
 import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-// Importa el hook del carrito para acceder a las funciones globales (addToCart, getProducts)
 import { useCart } from './CartContext'; 
 
-// Componente para la tarjeta de producto individual
 const ProductCard = ({ product, addToCart, colors }) => {
-
-  // La función addToCart se recibe de HomeScreen y usa el contexto
   const handleAddToCart = () => {
     addToCart(product);
-    // Opcional: Podrías añadir una pequeña notificación aquí (e.g., Toast)
   };
 
   return (
-    <View 
-      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
-    >
+    <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
       <Image 
         source={{ uri: product.image }} 
         style={styles.productImage} 
-        // Fallback de imagen por si la URL no carga (opcional, pero buena práctica)
         onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
       />
       <View style={styles.infoContainer}>
-        <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
+        <Text style={[styles.productName, { color: '#003366' }]} numberOfLines={2}>
           {product.name}
         </Text>
-        <Text style={[styles.productPrice, { color: colors.primary }]}>
+        <Text style={[styles.productPrice, { color: '#007bff' }]}>
           ${product.price.toFixed(2)}
         </Text>
-        
-        {/* Botón de Añadir al Carrito: Llama a la función del contexto */}
         <TouchableOpacity 
-          style={[styles.addButton, { backgroundColor: colors.notification }]}
+          style={styles.addButton}
           onPress={handleAddToCart}
         >
-          <Ionicons name="cart-outline" size={20} color={colors.background} />
+          <Ionicons name="cart-outline" size={20} color="#fff" />
           <Text style={styles.addText}>Añadir</Text>
         </TouchableOpacity>
       </View>
@@ -46,59 +36,35 @@ const ProductCard = ({ product, addToCart, colors }) => {
   );
 };
 
-
 export default function HomeScreen() {
-  // Obtiene colores y estado de modo oscuro del tema de navegación
-  const { colors, dark } = useTheme();
-  
-  // Obtenemos las funciones y datos necesarios del contexto del carrito
   const { addToCart, getProducts } = useCart();
-
-  // Obtenemos la lista de productos base (del CartContext)
   const DUMMY_PRODUCTS = getProducts();
 
-  // Ajusta el color de la barra de estado (hora, batería) según el tema
-  const statusBarStyle = dark ? 'light' : 'dark';
-
   const renderItem = ({ item }) => (
-    <ProductCard 
-        product={item} 
-        addToCart={addToCart} // Pasamos la función del contexto
-        colors={colors}
-    />
+    <ProductCard product={item} addToCart={addToCart} />
   );
 
   return (
-    <View style={[styles.fullContainer, { backgroundColor: colors.background }]}>
-      
-      {/* --- Encabezado de la Tienda --- */}
-      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          DELTASTYLE Store
-        </Text>
+    <View style={styles.fullContainer}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>DELTASTYLE Store</Text>
         <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search-outline" size={24} color={colors.text} />
+          <Ionicons name="search-outline" size={24} color="#003366" />
         </TouchableOpacity>
       </View>
-      {/* --- Fin Encabezado --- */}
 
-      {/* --- Lista de Productos --- */}
       <FlatList
         data={DUMMY_PRODUCTS}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        numColumns={2} // Muestra 2 productos por fila
+        numColumns={2}
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={() => (
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                Nuevos Productos
-            </Text>
+            <Text style={styles.sectionTitle}>Nuevos Productos</Text>
         )}
       />
-      {/* --- Fin Lista de Productos --- */}
-
-      <StatusBar style={statusBarStyle} />
+      <StatusBar style="dark" />
     </View>
   );
 }
@@ -106,20 +72,29 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
+    backgroundColor: '#e9f2ff',
     paddingTop: 0, 
   },
   header: {
-    paddingTop: 40, // Margen superior para la barra de estado (notch)
+    paddingTop: 40,
     paddingHorizontal: 20,
-    paddingBottom: 10,
+    paddingBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#cfe4ff',
+    borderBottomColor: '#a8cfff',
     borderBottomWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#003366',
   },
   searchButton: {
     padding: 5,
@@ -134,6 +109,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 10,
     paddingHorizontal: 10,
+    color: '#003366',
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -142,15 +118,14 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     marginHorizontal: 5,
-    borderRadius: 10,
+    borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 1,
     marginBottom: 15,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    elevation: 5, // Android shadow
-    paddingBottom: 10,
+    elevation: 4,
   },
   productImage: {
     width: '100%',
@@ -176,6 +151,7 @@ const styles = StyleSheet.create({
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#007bff',
     paddingHorizontal: 15,
     paddingVertical: 8,
     borderRadius: 20,
@@ -187,3 +163,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   }
 });
+
