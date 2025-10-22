@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react
 import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from './CartContext'; 
+import { useCart } from './CartScreen'; 
 
 const ProductCard = ({ product, addToCart, colors }) => {
   const handleAddToCart = () => {
