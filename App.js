@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons'; // iconos
 
 
 import HomeScreen from './componentes/HomeScreen';
-
 // import CartScreen from './componentes/CartScreen';
 import SettingsScreen from './componentes/SettingsScreen';
 import ProfileScreen from './componentes/ProfileScreen';
