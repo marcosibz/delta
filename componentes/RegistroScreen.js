@@ -8,30 +8,47 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
+    // Validación cliente
+    if (!correo.trim() || !usuario.trim() || !password.trim()) {
+      Alert.alert('Error', 'Completa todos los campos');
+      return;
+    }
+
+    const body = { correo: correo.trim(), usuario: usuario.trim(), contrasena: password };
+
+    console.log('Registro: body ->', body);
+
     try {
-      const response = await fetch('http://192.168.100.28:3000/usuarios', {
+      const response = await fetch('http://10.230.117.125:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          correo,
-          usuario,
-          contraseña: password
-        }),
+        body: JSON.stringify(body),
       });
+
       const data = await response.json();
-      if (response.ok) {
-        Alert.alert('Éxito', 'Usuario registrado correctamente');
+      console.log('register response:', data);
+
+      if (response.ok && data.ok !== false) {
+        Alert.alert('Éxito', data.message || 'Usuario registrado correctamente');
         setCorreo('');
         setUsuario('');
         setPassword('');
-        onRegistrado(); // Cambia a la pantalla principal
+        onRegistrado && onRegistrado();
       } else {
-        Alert.alert('Error', data.error || 'Error al registrar usuario');
+        // construir mensaje seguro (STRING)
+        let msg;
+        if (typeof data === 'string') msg = data;
+        else if (data?.message) msg = data.message;
+        else if (data?.error) msg = (typeof data.error === 'string') ? data.error : (data.error.message || JSON.stringify(data.error));
+        else msg = JSON.stringify(data);
+        Alert.alert('Error', msg);
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo conectar al servidor');
+      console.log('register catch error:', error);
+      Alert.alert('Error', error.message || JSON.stringify(error));
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registro de Usuario</Text>
@@ -41,6 +58,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
         value={correo}
         onChangeText={setCorreo}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         style={styles.input}
@@ -59,9 +77,9 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
       <Button title="Registrar" onPress={handleRegister} />
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-      <Text style={{ color: 'blue', textAlign: 'center', marginTop: 16 }}>
-      ¿Tienes una cuenta? Acceder
-      </Text>
+        <Text style={{ color: 'blue', textAlign: 'center', marginTop: 16 }}>
+          ¿Tienes una cuenta? Acceder
+        </Text>
       </TouchableOpacity>
     </View>
   );
