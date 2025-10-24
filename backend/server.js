@@ -14,23 +14,28 @@ const db = mysql.createConnection({
 });
 
 
-//metodo post para guardar usuarios
+
 app.post('/usuarios', (req, res) => {
-  const { correo, usuario, contraseña } = req.body;
-  if (!correo || !usuario || !contraseña) {
-    return res.status(400).json({ error: 'Faltan datos' });
+  console.log('/usuarios body ->', req.body); // <--- ver qué llega
+  const { correo, usuario, contrasena } = req.body;
+
+  if (!correo || !usuario || !contrasena) {
+    return res.status(400).json({ ok: false, message: 'Faltan datos' });
   }
 
-  // guardar usuario en la base de datos
   db.query(
-    'INSERT INTO usuarios (correo, usuario, contraseña) VALUES (?, ?, ?)',
-    [correo, usuario, contraseña],
+    'INSERT INTO usuarios (correo, usuario, contrasena) VALUES (?, ?, ?)',
+    [correo, usuario, contrasena],
     (err, result) => {
-      if (err) return res.status(500).json({ error: err });
-      res.json({ mensaje: 'Usuario guardado', id: result.insertId });
+      if (err) {
+        console.error('INSERT error:', err);
+        return res.status(500).json({ ok: false, message: err.message });
+      }
+      return res.json({ ok: true, message: 'Usuario creado' });
     }
   );
 });
+// ...existing code...
 
 app.post('/login', (req, res) => {
   const { correo, contraseña } = req.body;
