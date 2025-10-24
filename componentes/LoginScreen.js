@@ -8,7 +8,7 @@ export default function LoginScreen({ navigation, route, onLogin }) {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://10.94.111.125:3000/login', {
+      const response = await fetch('http://10.230.117.125:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correo, contraseña: password }),
@@ -17,10 +17,10 @@ export default function LoginScreen({ navigation, route, onLogin }) {
       if (response.ok && data.ok) {
         if (realOnLogin) realOnLogin();
     } else {
-        Alert.alert('Error', 'Datos incorrectos');
+        alert('Error', 'Datos incorrectos');
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo conectar al servidor');
+      alert('Error', 'No se pudo conectar al servidor');
     }
   };
 

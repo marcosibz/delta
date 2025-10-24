@@ -9,7 +9,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch('http://10.94.111.125:3000/usuarios', {
+      const response = await fetch('http://10.230.117.125:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -26,10 +26,10 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
         setPassword('');
         onRegistrado(); // Cambia a la pantalla principal
       } else {
-        Alert.alert('Error', data.error || 'Error al registrar usuario');
+        alert('Error', data.error || 'Error al registrar usuario');
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo conectar al servidor');
+      alert('Error', 'No se pudo conectar al servidor');
     }
   };
 
