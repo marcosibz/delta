@@ -7,19 +7,28 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
   const [password, setPassword] = useState('');
 
   const handleRegister = async () => {
+    // Validación cliente
+    if (!correo.trim() || !usuario.trim() || !password.trim()) {
+      Alert.alert('Error', 'Completa todos los campos');
+      return;
+    }
+
+    const body = { correo: correo.trim(), usuario: usuario.trim(), contrasena: password };
+
+    console.log('Registro: body ->', body);
+
     try {
       const response = await fetch('http://10.230.117.125:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          correo,
-          usuario,
-          contraseña: password
-        }),
+        body: JSON.stringify(body),
       });
+
       const data = await response.json();
-      if (response.ok) {
-        Alert.alert('Éxito', 'Usuario registrado correctamente');
+      console.log('register response:', data);
+
+      if (response.ok && data.ok !== false) {
+        Alert.alert('Éxito', data.message || 'Usuario registrado correctamente');
         setCorreo('');
         setUsuario('');
         setPassword('');
@@ -43,6 +52,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
         value={correo}
         onChangeText={setCorreo}
         autoCapitalize="none"
+        keyboardType="email-address"
       />
 
       <TextInput
