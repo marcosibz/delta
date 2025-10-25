@@ -1,3 +1,4 @@
+// ...existing code...
 import React, { useState } from 'react';
 import { 
   View, 
@@ -17,26 +18,33 @@ export default function LoginScreen({ navigation, route, onLogin }) {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
+  // Ajusta este nombre según tu App.js: 'MainTabs' o 'HomeScreen'
+  const HOME_ROUTE = 'MainTabs';
+
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://10.230.117.125:3000/login', {
+      const response = await fetch('http://10.0.12.255:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo, contraseña: password }),
+        body: JSON.stringify({ correo, contrasena: password }),
       });
+
       const data = await response.json();
+      console.log('login response ->', data);
+
       if (response.ok && data.ok) {
+        // Ejecuta el callback que cambia el estado (si fue pasado)
         if (realOnLogin) realOnLogin();
-<<<<<<< HEAD
-    } else {
-        alert('Error', 'Datos incorrectos');
-=======
+
+        // Limpia el stack y lleva a la pantalla principal
+        navigation.reset({ index: 0, routes: [{ name: HOME_ROUTE }] });
       } else {
-        Alert.alert('Error', 'Datos incorrectos');
->>>>>>> 9f8c41419e5da5f6e64d26359d93c8ec14aaeed3
+        const msg = typeof data === 'string' ? data : (data?.message || JSON.stringify(data));
+        Alert.alert('Error', msg || 'Datos incorrectos');
       }
     } catch (error) {
-      alert('Error', 'No se pudo conectar al servidor');
+      console.error('login error', error);
+      Alert.alert('Error', error.message || 'No se pudo conectar al servidor');
     }
   };
 
@@ -87,6 +95,7 @@ export default function LoginScreen({ navigation, route, onLogin }) {
   );
 }
 
+// ...existing code...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
