@@ -6,12 +6,12 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
   const DUMMY_PRODUCTS = [
-    { id: '1', name: 'Zapatillas Running Pro', price: 89.99, image: 'https://placehold.co/150x180/007bff/ffffff?text=ZAP+PRO' },
-    { id: '2', name: 'Chaqueta Deportiva Ligera', price: 59.90, image: 'https://placehold.co/150x180/dc3545/ffffff?text=CHAQ+LIG' },
+    { id: '1', name: 'Polo boxy fit oscuro', price: 89.99, image: 'https://placehold.co/150x180/007bff/ffffff?text=ZAP+PRO' },
+    { id: '2', name: 'Jean baggy camuflado', price: 59.90, image: 'https://placehold.co/150x180/dc3545/ffffff?text=CHAQ+LIG' },
     { id: '3', name: 'Mochila Urbana Minimalista', price: 35.50, image: 'https://placehold.co/150x180/28a745/ffffff?text=MOCHILA' },
     { id: '4', name: 'Gorra Clásica de Algodón', price: 15.00, image: 'https://placehold.co/150x180/ffc107/333333?text=GORRA' },
-    { id: '5', name: 'Auriculares Inalámbricos', price: 120.00, image: 'https://placehold.co/150x180/6f42c1/ffffff?text=AURICUL' },
-    { id: '6', name: 'Reloj Inteligente V2', price: 199.99, image: 'https://placehold.co/150x180/fd7e14/ffffff?text=RELOJ+V2' },
+    { id: '5', name: 'Hoodie boxy fit', price: 120.00, image: 'https://placehold.co/150x180/6f42c1/ffffff?text=AURICUL' },
+    { id: '6', name: 'Polar zip ovezide', price: 199.99, image: 'https://placehold.co/150x180/fd7e14/ffffff?text=RELOJ+V2' },
   ];
 
   const getProducts = () => DUMMY_PRODUCTS;
