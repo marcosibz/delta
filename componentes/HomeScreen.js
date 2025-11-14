@@ -1,69 +1,164 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+import { useCart } from './CartScreen'; 
 
-export default function HomeScreen() {
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigation = useNavigation();
-
-  const handleLogin = () => {
-    // Aquí podrías agregar la lógica para enviar los datos a tu backend
-    // Redirige a la pantalla "Profile"
-    navigation.navigate('Profile');
+const ProductCard = ({ product, addToCart }) => {
+  const handleAddToCart = () => {
+    addToCart(product);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre"
-        onChangeText={setNombre}
-        value={nombre}
+    <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
+      <Image 
+        source={{ uri: product.image }} 
+        style={styles.productImage} 
+        onError={(e) => console.log('Error loading image', e.nativeEvent?.error)}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Apellido"
-        onChangeText={setApellido}
-        value={apellido}
+      <View style={styles.infoContainer}>
+        <Text style={[styles.productName, { color: '#003366' }]} numberOfLines={2}>
+          {product.name}
+        </Text>
+        <Text style={[styles.productPrice, { color: '#007bff' }]}>
+          ${product.price.toFixed(2)}
+        </Text>
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={handleAddToCart}
+        >
+          <Ionicons name="cart-outline" size={20} color="#fff" />
+          <Text style={styles.addText}>Añadir</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+export default function HomeScreen() {
+  const { addToCart, getProducts } = useCart();
+  const DUMMY_PRODUCTS = getProducts();
+
+  const renderItem = ({ item }) => (
+    <ProductCard product={item} addToCart={addToCart} />
+  );
+
+  return (
+    <View style={styles.fullContainer}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>DELTASTYLE Store</Text>
+        <TouchableOpacity style={styles.searchButton}>
+          <Ionicons name="search-outline" size={24} color="#003366" />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={DUMMY_PRODUCTS}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        contentContainerStyle={styles.listContainer}
+        columnWrapperStyle={styles.columnWrapper}
+        ListHeaderComponent={() => (
+            <Text style={styles.sectionTitle}>Nuevos Productos</Text>
+        )}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        onChangeText={setEmail}
-        value={email}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry
-      />
-      <Button title="Ingresar" onPress={handleLogin} />
+      <StatusBar style="dark" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  fullContainer: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#e9f2ff',
+    paddingTop: 0, 
+  },
+  header: {
+    paddingTop: 40,
     paddingHorizontal: 20,
+    paddingBottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#cfe4ff',
+    borderBottomColor: '#a8cfff',
+    borderBottomWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  title: {
+  headerTitle: {
     fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#003366',
   },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
+  searchButton: {
+    padding: 5,
+  },
+  listContainer: {
+    paddingHorizontal: 10,
+    paddingBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 15,
+    marginTop: 10,
+    paddingHorizontal: 10,
+    color: '#003366',
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  card: {
+    flex: 1,
+    marginHorizontal: 5,
+    borderRadius: 12,
+    overflow: 'hidden',
     borderWidth: 1,
     marginBottom: 15,
-    paddingHorizontal: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 4,
   },
+  productImage: {
+    width: '100%',
+    height: 180,
+    resizeMode: 'cover',
+    marginBottom: 5,
+  },
+  infoContainer: {
+    padding: 8,
+    alignItems: 'center',
+  },
+  productName: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  productPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007bff',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 5,
+  },
+  addText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontWeight: 'bold',
+  }
 });
