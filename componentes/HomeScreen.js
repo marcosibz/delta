@@ -1,38 +1,40 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from './CartContext'; 
+import { useCart } from './CartContext';
+import ProductModal from './ProductModal';
 
-const ProductCard = ({ product, addToCart, colors }) => {
-  const handleAddToCart = () => {
-    addToCart(product);
-  };
-
+const ProductCard = ({ product, addToCart, onPress }) => {
   return (
-    <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
-      <Image 
-        source={{ uri: product.image }} 
-        style={styles.productImage} 
-        onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}
+      onPress={() => onPress(product)}
+      activeOpacity={0.8}
+    >
+      <Image
+        source={{ uri: product.image }}
+        style={styles.productImage}
       />
+
       <View style={styles.infoContainer}>
         <Text style={[styles.productName, { color: '#003366' }]} numberOfLines={2}>
           {product.name}
         </Text>
+
         <Text style={[styles.productPrice, { color: '#007bff' }]}>
           ${product.price.toFixed(2)}
         </Text>
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.addButton}
-          onPress={handleAddToCart}
+          onPress={() => addToCart(product)}
         >
           <Ionicons name="cart-outline" size={20} color="#fff" />
           <Text style={styles.addText}>Añadir</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -40,8 +42,26 @@ export default function HomeScreen() {
   const { addToCart, getProducts } = useCart();
   const DUMMY_PRODUCTS = getProducts();
 
+  // 🟦 Estado para manejar la modal del producto
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
+
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedProduct(null);
+  };
+
   const renderItem = ({ item }) => (
-    <ProductCard product={item} addToCart={addToCart} />
+    <ProductCard
+      product={item}
+      addToCart={addToCart}
+      onPress={openModal}
+    />
   );
 
   return (
@@ -61,9 +81,18 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={() => (
-            <Text style={styles.sectionTitle}>Nuevos Productos</Text>
+          <Text style={styles.sectionTitle}>Nuevos Productos</Text>
         )}
       />
+
+      {/* 🟦 Modal del producto */}
+      <ProductModal
+        visible={modalVisible}
+        product={selectedProduct}
+        onClose={closeModal}
+        addToCart={addToCart}
+      />
+
       <StatusBar style="dark" />
     </View>
   );
@@ -73,7 +102,7 @@ const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
     backgroundColor: '#e9f2ff',
-    paddingTop: 0, 
+    paddingTop: 0,
   },
   header: {
     paddingTop: 40,
@@ -85,10 +114,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#cfe4ff',
     borderBottomColor: '#a8cfff',
     borderBottomWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
     elevation: 3,
   },
   headerTitle: {
@@ -122,9 +147,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     marginBottom: 15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
     elevation: 4,
   },
   productImage: {
@@ -161,6 +183,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 5,
     fontWeight: 'bold',
-  }
+  },
 });
-
