@@ -17,15 +17,15 @@ const db = mysql.createConnection({
 
 app.post('/usuarios', (req, res) => {
   console.log('/usuarios body ->', req.body); // <--- ver qué llega
-  const { correo, usuario, contrasena } = req.body;
+  const { correo, usuario, contraseña } = req.body;
 
-  if (!correo || !usuario || !contrasena) {
+  if (!correo || !usuario || !contraseña) {
     return res.status(400).json({ ok: false, message: 'Faltan datos' });
   }
 
   db.query(
-    'INSERT INTO usuarios (correo, usuario, contrasena) VALUES (?, ?, ?)',
-    [correo, usuario, contrasena],
+    'INSERT INTO users (correo, usuario, contraseña) VALUES (?, ?, ?)',
+    [correo, usuario, contraseña],
     (err, result) => {
       if (err) {
         console.error('INSERT error:', err);
@@ -40,7 +40,7 @@ app.post('/usuarios', (req, res) => {
 app.post('/login', (req, res) => {
   const { correo, contraseña } = req.body;
   db.query(
-    'SELECT * FROM usuarios WHERE correo = ? AND contraseña = ?',
+    'SELECT * FROM users WHERE correo = ? AND contraseña = ?',
     [correo, contraseña],
     (err, results) => {
       if (err) return res.status(500).json({ error: err });
