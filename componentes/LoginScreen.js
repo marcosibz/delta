@@ -29,7 +29,7 @@ export default function LoginScreen({ navigation }) {
     console.log('Intentando login con:', correo);
 
     try {
-      const response = await fetch('http://192.168.100.7:3000/login', {
+      const response = await fetch('http://10.0.0.113:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

@@ -62,7 +62,7 @@ export default function DolarScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#007bff']} />
       }
     >
-      <Text style={styles.title}>💵 Cotización del Dólar (Argentina)</Text>
+      <Text style={styles.title}>Cotización del Dólar (Argentina)</Text>
       {dolares.map((dolar) => (
         <View key={dolar.nombre} style={styles.card}>
           <Text style={styles.name}>{dolar.nombre}</Text>

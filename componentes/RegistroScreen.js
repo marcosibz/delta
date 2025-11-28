@@ -30,7 +30,7 @@ export default function RegistroScreen({ navigation }) {
     console.log('Registrando usuario:', body);
 
     try {
-      const response = await fetch('http://192.168.100.7:3000/usuarios', {
+      const response = await fetch('http://10.0.0.113:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
