@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useUser } from './UserContext';
+import { useTheme } from './ThemeContext';
 
-export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
+export default function ProfileScreen() {
   const { user, updateUser, logout } = useUser();
-  const primaryBlue = '#007bff';
-  const lightBackground = '#e9f2ff';
-  const cardBackground = '#ffffff';
+  const { theme } = useTheme();
 
   const pickImage = async () => {
     try {
@@ -55,15 +54,15 @@ export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
     <View
       style={[
         styles.container,
-        { backgroundColor: isDarkMode ? '#0d1117' : lightBackground },
+        { backgroundColor: theme.background },
       ]}
     >
       <View
         style={[
           styles.header,
           {
-            backgroundColor: isDarkMode ? '#1f1f1f' : cardBackground,
-            borderBottomColor: primaryBlue,
+            backgroundColor: theme.itemBg,
+            borderBottomColor: theme.primary,
           },
         ]}
       >
@@ -76,48 +75,25 @@ export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
             }
             style={[
               styles.avatar,
-              { borderColor: isDarkMode ? '#03DAC6' : primaryBlue },
+              { borderColor: theme.primary },
             ]}
           />
-          <View style={styles.cameraIcon}>
-            <Ionicons name="camera" size={20} color="#fff" />
+          <View style={[styles.cameraIcon, { backgroundColor: theme.button }]}>
+            <Ionicons name="camera" size={20} color={theme.buttonText} />
           </View>
         </TouchableOpacity>
         <View style={styles.userInfo}>
           <Text
-            style={[styles.name, { color: isDarkMode ? '#fff' : '#003366' }]}
+            style={[styles.name, { color: theme.text }]}
           >
             {user.nombre || 'Usuario'}
           </Text>
           <Text
-            style={[styles.email, { color: isDarkMode ? '#bbb' : '#555' }]}
+            style={[styles.email, { color: theme.textSecondary }]}
           >
             {user.correo || 'email@ejemplo.com'}
           </Text>
         </View>
-      </View>
-
-      <View
-        style={[
-          styles.themeToggle,
-          { backgroundColor: isDarkMode ? '#1e1e1e' : cardBackground },
-        ]}
-      >
-        <Text
-          style={{
-            color: isDarkMode ? '#fff' : '#003366',
-            fontSize: 16,
-            fontWeight: '500',
-          }}
-        >
-          {isDarkMode ? 'Modo oscuro' : 'Modo claro'}
-        </Text>
-        <Switch
-          value={isDarkMode}
-          onValueChange={(value) => setIsDarkMode && setIsDarkMode(value)}
-          thumbColor={isDarkMode ? '#03DAC6' : '#007bff'}
-          trackColor={{ false: '#b0c4de', true: '#64b5f6' }}
-        />
       </View>
 
       <View style={styles.menu}>
@@ -128,15 +104,15 @@ export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
               style={[
                 styles.menuItem,
                 {
-                  backgroundColor: isDarkMode ? '#1e1e1e' : cardBackground,
-                  borderLeftColor: primaryBlue,
+                  backgroundColor: theme.itemBg,
+                  borderLeftColor: theme.primary,
                 },
               ]}
             >
               <Text
                 style={[
                   styles.menuText,
-                  { color: isDarkMode ? '#fff' : '#003366' },
+                  { color: theme.text },
                 ]}
               >
                 {item}
@@ -149,15 +125,15 @@ export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
           style={[
             styles.menuItem,
             {
-              backgroundColor: isDarkMode ? '#1e1e1e' : cardBackground,
-              borderLeftColor: '#dc3545',
+              backgroundColor: theme.itemBg,
+              borderLeftColor: theme.danger,
             },
           ]}
         >
           <Text
             style={[
               styles.menuText,
-              { color: isDarkMode ? '#ff6b6b' : '#dc3545' },
+              { color: theme.danger },
             ]}
           >
             Cerrar sesión
@@ -195,17 +171,19 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 35,
     borderWidth: 2,
-    backgroundColor: '#dce8ff',
   },
   cameraIcon: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#007bff',
     borderRadius: 12,
     width: 24,
     height: 24,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  row: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   userInfo: {
@@ -218,17 +196,6 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 15,
     marginTop: 4,
-  },
-  themeToggle: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 25,
-    paddingVertical: 15,
-    marginHorizontal: 18,
-    borderRadius: 12,
-    marginBottom: 20,
-    elevation: 3,
   },
   menu: { marginTop: 10 },
   menuItem: {

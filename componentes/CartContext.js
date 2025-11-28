@@ -1,54 +1,57 @@
-// ...existing code...
 import React, { createContext, useContext, useState, useMemo } from 'react';
 
-const CartContext = createContext(null);
+const CartContext = createContext();
 
-export function CartProvider({ children }) {
+export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = (product) => {
-    setCartItems((prev) => {
-      const exists = prev.find((p) => p.id === product.id);
-      if (exists) {
-        return prev.map((p) =>
-          p.id === product.id ? { ...p, quantity: (p.quantity || 1) + 1 } : p
-        );
+  const DUMMY_PRODUCTS = [
+    { id: '1', name: 'Polo boxy fit oscuro', price: 89.99, image: '/image/polo.jpg' },
+    { id: '2', name: 'Jean baggy camuflado', price: 59.90, image: '/image/jean.jpg' },
+    { id: '3', name: 'jorts baggy', price: 35.50, image: '/image/jorts.jpg' },
+    { id: '4', name: 'bermuda baggy cargo', price: 15.00, image: '/image/bermuda.jpg' },
+    { id: '5', name: 'Hoodie boxy fit', price: 120.00, image: '/image/hoodie.jpg' },
+    { id: '6', name: 'Polar zip ovezide', price: 199.99, image: '/image/polar.jpg' },
+  ];
+
+  const getProducts = () => DUMMY_PRODUCTS;
+
+  const updateItemQuantity = (productId, change) => {
+    setCartItems(prevItems => {
+      const existing = prevItems.find(i => i.id === productId);
+      if (existing) {
+        const newQty = existing.quantity + change;
+        if (newQty <= 0) return prevItems.filter(i => i.id !== productId);
+        return prevItems.map(i => i.id === productId ? { ...i, quantity: newQty } : i);
       }
-      return [...prev, { ...product, quantity: 1 }];
+      if (change > 0) {
+        const product = DUMMY_PRODUCTS.find(p => p.id === productId);
+        if (product) return [...prevItems, { ...product, quantity: change }];
+      }
+      return prevItems;
     });
   };
 
-  const updateItemQuantity = (id, delta) => {
-    setCartItems((prev) =>
-      prev
-        .map((p) => (p.id === id ? { ...p, quantity: (p.quantity || 1) + delta } : p))
-        .filter((p) => p.quantity > 0)
-    );
-  };
-
-  const removeFromCart = (id) => setCartItems((prev) => prev.filter((p) => p.id !== id));
+  const addToCart = (product) => updateItemQuantity(product.id, 1);
+  const removeFromCart = (productId) => updateItemQuantity(productId, -1);
   const clearCart = () => setCartItems([]);
 
   const subtotal = useMemo(
-    () => cartItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0),
+    () => cartItems.reduce((sum, it) => sum + (it.price * (it.quantity || 0)), 0),
     [cartItems]
   );
 
-  const getProducts = () => [
-    { id: 1, name: 'Remera básica', price: 19.99, image: 'https://via.placeholder.com/400x300' },
-    { id: 2, name: 'Pantalón Jeans', price: 39.99, image: 'https://via.placeholder.com/400x300' },
-  ];
-
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, updateItemQuantity, removeFromCart, clearCart, subtotal, getProducts }}>
+    <CartContext.Provider value={{ cartItems, subtotal, getProducts, addToCart, updateItemQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
-}
+};
 
-export function useCart() {
+export const useCart = () => {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error('useCart must be used inside CartProvider');
+  if (!ctx) throw new Error('useCart debe usarse dentro de CartProvider');
   return ctx;
-}
-// ...existing code...
+};
+
+export default CartContext;

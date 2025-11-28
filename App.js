@@ -14,6 +14,7 @@ import CartScreen from './componentes/CartScreen';
 
 import { CartProvider } from './componentes/CartContext';
 import { UserProvider, useUser } from './componentes/UserContext';
+import { ThemeProvider, useTheme } from './componentes/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -27,18 +28,20 @@ function AuthStack() {
   );
 }
 
-function MainTabs({ isDarkMode, setIsDarkMode }) {
+function MainTabs() {
+  const { theme, isDark } = useTheme();
+  
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: isDarkMode ? '#1f1f1f' : '#ffffff',
-          borderTopColor: isDarkMode ? '#2a2a2a' : '#e0e0e0',
+          backgroundColor: isDark ? '#1f1f1f' : '#ffffff',
+          borderTopColor: isDark ? '#2a2a2a' : '#e0e0e0',
           paddingBottom: 4,
           height: 60,
         },
-        tabBarActiveTintColor: isDarkMode ? '#03DAC6' : '#007AFF',
+        tabBarActiveTintColor: isDark ? '#03DAC6' : '#007AFF',
         tabBarInactiveTintColor: '#888',
       }}
     >
@@ -58,12 +61,11 @@ function MainTabs({ isDarkMode, setIsDarkMode }) {
       />
       <Tab.Screen
         name="Mi Perfil"
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
         }}
-      >
-        {() => <ProfileScreen isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />}
-      </Tab.Screen>
+      />
       <Tab.Screen
         name="Ajustes"
         component={SettingsScreen}
@@ -76,14 +78,13 @@ function MainTabs({ isDarkMode, setIsDarkMode }) {
 }
 
 function AppContent() {
-  const scheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = useState(scheme === 'dark');
+  const { isDark } = useTheme();
   const { isAuthenticated } = useUser();
 
   return (
-    <NavigationContainer theme={isDarkMode ? DarkTheme : DefaultTheme}>
+    <NavigationContainer theme={isDark ? DarkTheme : DefaultTheme}>
       {isAuthenticated ? (
-        <MainTabs isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+        <MainTabs />
       ) : (
         <AuthStack />
       )}
@@ -93,10 +94,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <UserProvider>
-      <CartProvider>
-        <AppContent />
-      </CartProvider>
-    </UserProvider>
+    <ThemeProvider>
+      <UserProvider>
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
+      </UserProvider>
+    </ThemeProvider>
   );
 }
