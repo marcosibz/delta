@@ -4,32 +4,38 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from './CartContext';
+import ProductModal from './ProductModal';
 
-const ProductCard = ({ product, addToCart }) => {
-  const handleAddToCart = () => {
-    addToCart(product);
-  };
-
+const ProductCard = ({ product, addToCart, onPress }) => {
   return (
-    <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}
+      onPress={() => onPress(product)}
+      activeOpacity={0.8}
+    >
       <Image
         source={{ uri: product.image }}
         style={styles.productImage}
-        onError={(e) => console.log('Error loading image', e.nativeEvent?.error)}
       />
+
       <View style={styles.infoContainer}>
         <Text style={[styles.productName, { color: '#003366' }]} numberOfLines={2}>
           {product.name}
         </Text>
+
         <Text style={[styles.productPrice, { color: '#007bff' }]}>
           ${product.price.toFixed(2)}
         </Text>
-        <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
+
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => addToCart(product)}
+        >
           <Ionicons name="cart-outline" size={20} color="#fff" />
           <Text style={styles.addText}>Añadir</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -37,8 +43,26 @@ export default function HomeScreen() {
   const { addToCart, getProducts } = useCart();
   const DUMMY_PRODUCTS = getProducts();
 
+  // 🟦 Estado para manejar la modal del producto
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
+
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedProduct(null);
+  };
+
   const renderItem = ({ item }) => (
-    <ProductCard product={item} addToCart={addToCart} />
+    <ProductCard
+      product={item}
+      addToCart={addToCart}
+      onPress={openModal}
+    />
   );
 
   return (
@@ -61,6 +85,15 @@ export default function HomeScreen() {
           <Text style={styles.sectionTitle}>Nuevos Productos</Text>
         )}
       />
+
+      {/* 🟦 Modal del producto */}
+      <ProductModal
+        visible={modalVisible}
+        product={selectedProduct}
+        onClose={closeModal}
+        addToCart={addToCart}
+      />
+
       <StatusBar style="dark" />
     </View>
   );
@@ -82,10 +115,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#cfe4ff',
     borderBottomColor: '#a8cfff',
     borderBottomWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
     elevation: 3,
   },
   headerTitle: {
@@ -111,9 +140,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     marginBottom: 15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
     elevation: 4,
   },
   productImage: { width: '100%', height: 180, resizeMode: 'cover', marginBottom: 5 },
@@ -129,5 +155,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginTop: 5,
   },
-  addText: { color: '#fff', marginLeft: 5, fontWeight: 'bold' },
+  addText: {
+    color: '#fff',
+    marginLeft: 5,
+    fontWeight: 'bold',
+  },
 });
