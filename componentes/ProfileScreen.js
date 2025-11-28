@@ -1,79 +1,48 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Switch } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
+
+  const navigation = useNavigation();
+
   const primaryBlue = '#007bff';
   const lightBackground = '#e9f2ff';
   const cardBackground = '#ffffff';
 
+  const handleMenuPress = (item) => {
+    switch(item) {
+      case 'Mi cuenta':
+        navigation.navigate("EditarPerfil");
+        break;
+
+      case 'Mis compras':
+        navigation.navigate("Carrito");
+        break;
+
+      case 'Configuración':
+        navigation.navigate("Settings");
+        break;
+
+      case 'Cerrar sesión':
+        navigation.replace("Login");
+        break;
+    }
+  };
+
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: isDarkMode ? '#0d1117' : lightBackground },
-      ]}
-    >
-      {/* Encabezado */}
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: isDarkMode ? '#1f1f1f' : cardBackground,
-            borderBottomColor: primaryBlue,
-          },
-        ]}
-      >
-        <Image
-          source={{ uri: 'https://i.pravatar.cc/150?img=3' }}
-          style={[
-            styles.avatar,
-            { borderColor: isDarkMode ? '#03DAC6' : primaryBlue },
-          ]}
-        />
-        <View>
-          <Text
-            style={[styles.name, { color: isDarkMode ? '#fff' : '#003366' }]}
-          >
-            Juan Pérez
-          </Text>
-          <Text
-            style={[styles.email, { color: isDarkMode ? '#bbb' : '#555' }]}
-          >
-            juan.perez@email.com
-          </Text>
-        </View>
-      </View>
-
-      {/* Switch para modo oscuro */}
-      <View
-        style={[
-          styles.themeToggle,
-          { backgroundColor: isDarkMode ? '#1e1e1e' : cardBackground },
-        ]}
-      >
-        <Text
-          style={{
-            color: isDarkMode ? '#fff' : '#003366',
-            fontSize: 16,
-            fontWeight: '500',
-          }}
-        >
-          {isDarkMode ? 'Modo oscuro' : 'Modo claro'}
-        </Text>
-        <Switch
-          value={isDarkMode}
-          onValueChange={(value) => setIsDarkMode(value)}
-          thumbColor={isDarkMode ? '#03DAC6' : '#007bff'}
-          trackColor={{ false: '#b0c4de', true: '#64b5f6' }}
-        />
-      </View>
-
-      {/* Menú */}
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#0d1117' : lightBackground }]}>
+      
+      
       <View style={styles.menu}>
         {['Mi cuenta', 'Mis compras', 'Configuración', 'Cerrar sesión'].map(
           (item, idx) => (
             <TouchableOpacity
               key={idx}
+
+              
+              onPress={() => handleMenuPress(item)}
+
               style={[
                 styles.menuItem,
                 {
@@ -94,9 +63,11 @@ export default function ProfileScreen({ isDarkMode, setIsDarkMode }) {
           )
         )}
       </View>
+
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

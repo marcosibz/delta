@@ -2,19 +2,21 @@ import React from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
 
+
+import { useNavigation } from '@react-navigation/native';
+
 export default function SettingsScreen() {
 
-  const handlePress = (option) => {
-    Alert.alert('Opción seleccionada', `Has tocado: ${option}`);
-  };
- 
+  
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
 
       <Text style={styles.title}>Ajustes</Text>
 
-      {/* Opciones */}
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Editar Perfil")}>
+    
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("EditarPerfil")}>
         <View style={styles.row}>
           <Feather name="user" size={22} color="#004080" />
           <Text style={styles.optionText}>Editar Perfil</Text>
@@ -22,7 +24,7 @@ export default function SettingsScreen() {
         <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Notificaciones")}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Notificaciones")}>
         <View style={styles.row}>
           <Ionicons name="notifications-outline" size={22} color="#004080" />
           <Text style={styles.optionText}>Notificaciones</Text>
@@ -30,7 +32,7 @@ export default function SettingsScreen() {
         <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Idioma")}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Idioma")}>
         <View style={styles.row}>
           <Ionicons name="language-outline" size={22} color="#004080" />
           <Text style={styles.optionText}>Idioma</Text>
@@ -38,7 +40,7 @@ export default function SettingsScreen() {
         <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Privacidad")}>
+      <TouchableOpacity style={styles.option} onPress={() => navigation.navigate("Privacidad")}>
         <View style={styles.row}>
           <Feather name="lock" size={22} color="#004080" />
           <Text style={styles.optionText}>Privacidad</Text>
@@ -46,8 +48,11 @@ export default function SettingsScreen() {
         <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
       </TouchableOpacity>
 
-      {/* Botón Cerrar Sesión */}
-      <TouchableOpacity style={[styles.option, styles.logoutButton]} onPress={() => handlePress("Cerrar Sesión")}>
+     
+      <TouchableOpacity 
+        style={[styles.option, styles.logoutButton]} 
+        onPress={() => navigation.replace("Login")}   
+      >
         <View style={styles.row}>
           <MaterialIcons name="logout" size={22} color="#fff" />
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
@@ -57,6 +62,7 @@ export default function SettingsScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

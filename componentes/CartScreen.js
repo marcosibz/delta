@@ -9,15 +9,21 @@ export default function CartScreen() {
     <View style={styles.item}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <View style={styles.info}>
+       
         <Text style={styles.name}>{item.name}</Text>
+       
         <Text style={styles.price}>${(item.price).toFixed(2)}</Text>
         <View style={styles.row}>
+          
           <TouchableOpacity style={styles.qtyBtn} onPress={() => updateItemQuantity(item.id, -1)}>
             <Text style={styles.qtyText}>-</Text>
           </TouchableOpacity>
+          
           <Text style={styles.qty}>{item.quantity || 1}</Text>
+          
           <TouchableOpacity style={styles.qtyBtn} onPress={() => updateItemQuantity(item.id, 1)}>
             <Text style={styles.qtyText}>+</Text>
+          
           </TouchableOpacity>
           <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.remove}>
             <Text style={{ color: 'red' }}>Eliminar</Text>

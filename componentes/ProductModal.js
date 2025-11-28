@@ -31,7 +31,7 @@ export default function ProductModal({ visible, product, onClose, addToCart }) {
           <Image 
             source={{ uri: product.image }} 
             style={styles.productImage} 
-            onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+            onError={(e) => console.log('Error carga imagen', e.nativeEvent.error)}
           />
           
           {/* Detalles del producto */}
