@@ -6,48 +6,140 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Conexión a la base de datos
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',       
+  user: 'root',
   password: '',
   database: 'delta_db'
 });
 
+// Conectar a la base de datos
+db.connect((err) => {
+  if (err) {
+    console.error('Error al conectar a la base de datos:', err);
+    process.exit(1);
+  }
+  console.log('Conectado a la base de datos delta_db');
+});
 
-//metodo post para guardar usuarios
+// Endpoint de registro
 app.post('/usuarios', (req, res) => {
-  const { correo, usuario, contraseña } = req.body;
-  if (!correo || !usuario || !contraseña) {
-    return res.status(400).json({ error: 'Faltan datos' });
+  console.log('POST /usuarios - body:', req.body);
+  
+  const { correo, usuario, contrasena } = req.body;
+
+  // Validación de datos
+  if (!correo || !usuario || !contrasena) {
+    return res.status(400).json({ 
+      ok: false, 
+      error: 'Faltan datos requeridos' 
+    });
   }
 
-  // guardar usuario en la base de datos
+  // Verificar si el correo ya existe
   db.query(
-    'INSERT INTO usuarios (correo, usuario, contraseña) VALUES (?, ?, ?)',
-    [correo, usuario, contraseña],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err });
-      res.json({ mensaje: 'Usuario guardado', id: result.insertId });
+    'SELECT id FROM usuarios WHERE correo = ?',
+    [correo],
+    (err, results) => {
+      if (err) {
+        console.error('Error al verificar correo:', err);
+        return res.status(500).json({ 
+          ok: false, 
+          error: 'Error en el servidor' 
+        });
+      }
+
+      if (results.length > 0) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: 'El correo ya está registrado' 
+        });
+      }
+
+      // Insertar nuevo usuario
+      db.query(
+        'INSERT INTO usuarios (nombre, correo, contrasena) VALUES (?, ?, ?)',
+        [usuario, correo, contrasena],
+        (err, result) => {
+          if (err) {
+            console.error('Error al insertar usuario:', err);
+            return res.status(500).json({ 
+              ok: false, 
+              error: 'Error al crear usuario' 
+            });
+          }
+          
+          console.log('Usuario creado con ID:', result.insertId);
+          return res.json({ 
+            ok: true, 
+            message: 'Usuario registrado correctamente',
+            usuario: {
+              id: result.insertId,
+              nombre: usuario,
+              correo: correo
+            }
+          });
+        }
+      );
     }
   );
 });
 
+// Endpoint de login
 app.post('/login', (req, res) => {
-  const { correo, contraseña } = req.body;
+  console.log('POST /login - body:', req.body);
+  
+  const { correo, contrasena } = req.body;
+
+  // Validación de datos
+  if (!correo || !contrasena) {
+    return res.status(400).json({ 
+      ok: false, 
+      message: 'Faltan datos requeridos' 
+    });
+  }
+
+  // Buscar usuario
   db.query(
-    'SELECT * FROM usuarios WHERE correo = ? AND contraseña = ?',
-    [correo, contraseña],
+    'SELECT id, nombre, correo, foto FROM usuarios WHERE correo = ? AND contrasena = ?',
+    [correo, contrasena],
     (err, results) => {
-      if (err) return res.status(500).json({ error: err });
+      if (err) {
+        console.error('Error en login:', err);
+        return res.status(500).json({ 
+          ok: false, 
+          message: 'Error en el servidor' 
+        });
+      }
+
       if (results.length > 0) {
-        res.json({ ok: true });
+        const user = results[0];
+        console.log('Login exitoso para:', user.correo);
+        return res.json({ 
+          ok: true,
+          message: 'Login exitoso',
+          usuario: user.nombre,
+          correo: user.correo,
+          foto: user.foto
+        });
       } else {
-        res.json({ ok: false });
+        console.log('Credenciales incorrectas para:', correo);
+        return res.status(401).json({ 
+          ok: false, 
+          message: 'Datos incorrectos' 
+        });
       }
     }
   );
 });
 
-app.listen(3000, () => {
-  console.log('Servidor backend corriendo en puerto 3000');
+// Endpoint de prueba
+app.get('/test', (req, res) => {
+  res.json({ ok: true, message: 'Servidor funcionando correctamente' });
+});
+
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });

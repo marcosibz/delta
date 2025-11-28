@@ -1,88 +1,134 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
+import React from 'react';
+import { View, Text, FlatList, Image, TouchableOpacity, Button, StyleSheet } from 'react-native';
+import { useCart } from './CartContext';
 
-// 1. Crea el Contexto
-const CartContext = createContext();
+export default function CartScreen() {
+  const { cartItems, subtotal, updateItemQuantity, removeFromCart, clearCart } = useCart();
 
-// Productos de ejemplo
-const DUMMY_PRODUCTS = [
-  { id: '1', name: 'Zapatillas Running Pro', price: 89.99, image: 'https://placehold.co/150x180/007bff/ffffff?text=ZAP+PRO' },
-  { id: '2', name: 'Chaqueta Deportiva Ligera', price: 59.90, image: 'https://placehold.co/150x180/dc3545/ffffff?text=CHAQ+LIG' },
-  { id: '3', name: 'Mochila Urbana Minimalista', price: 35.50, image: 'https://placehold.co/150x180/28a745/ffffff?text=MOCHILA' },
-  { id: '4', name: 'Gorra Clásica de Algodón', price: 15.00, image: 'https://placehold.co/150x180/ffc107/333333?text=GORRA' },
-  { id: '5', name: 'Auriculares Inalámbricos', price: 120.00, image: 'https://placehold.co/150x180/6f42c1/ffffff?text=AURICUL' },
-  { id: '6', name: 'Reloj Inteligente V2', price: 199.99, image: 'https://placehold.co/150x180/fd7e14/ffffff?text=RELOJ+V2' },
-];
-
-// 2. Componente Proveedor (Provider)
-export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-
-  // Función para obtener la lista de productos (para HomeScreen)
-  const getProducts = () => DUMMY_PRODUCTS;
-
-  // Función para añadir o actualizar la cantidad de un producto
-  const updateItemQuantity = (productId, change) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === productId);
-
-      if (existingItem) {
-        const newQuantity = existingItem.quantity + change;
-        
-        if (newQuantity <= 0) {
-          // Eliminar el artículo si la cantidad es 0 o menos
-          return prevItems.filter(item => item.id !== productId);
-        } else {
-          // Actualizar la cantidad
-          return prevItems.map(item =>
-            item.id === productId ? { ...item, quantity: newQuantity } : item
-          );
-        }
-      } 
-      
-      // Si el artículo no existe y el cambio es positivo, se asume que es una adición.
-      if (change > 0) {
-        const product = DUMMY_PRODUCTS.find(p => p.id === productId);
-        if (product) {
-            return [...prevItems, { ...product, quantity: change }];
-        }
-      }
-
-      return prevItems;
-    });
-  };
-
-  // Función de acceso rápido para añadir un nuevo producto desde HomeScreen
-  const addToCart = (product) => {
-    updateItemQuantity(product.id, 1); 
-  };
-
-  // Cálculo del subtotal
-  const subtotal = useMemo(() => 
-    cartItems.reduce((total, item) => total + item.price * item.quantity, 0), 
-    [cartItems]
+  const renderItem = ({ item }) => (
+    <View style={styles.item}>
+      <Image source={{ uri: item.image }} style={styles.image} />
+      <View style={styles.info}>
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.price}>${(item.price).toFixed(2)}</Text>
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.qtyBtn} onPress={() => updateItemQuantity(item.id, -1)}>
+            <Text style={styles.qtyText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.qty}>{item.quantity || 1}</Text>
+          <TouchableOpacity style={styles.qtyBtn} onPress={() => updateItemQuantity(item.id, 1)}>
+            <Text style={styles.qtyText}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => removeFromCart(item.id)} style={styles.remove}>
+            <Text style={{ color: 'red' }}>Eliminar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
-
-  // Valores proporcionados por el contexto
-  const contextValue = {
-    cartItems,
-    subtotal,
-    getProducts,
-    addToCart,
-    updateItemQuantity,
-  };
 
   return (
-    <CartContext.Provider value={contextValue}>
-      {children}
-    </CartContext.Provider>
+    <View style={styles.container}>
+      <Text style={styles.title}>Carrito ({cartItems.length})</Text>
+      <FlatList
+        data={cartItems}
+        keyExtractor={item => item.id.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={<Text style={styles.empty}>El carrito está vacío</Text>}
+      />
+      <View style={styles.footer}>
+        <Text style={styles.subtotal}>Subtotal: ${subtotal.toFixed(2)}</Text>
+        <Button title="Vaciar carrito" onPress={clearCart} disabled={cartItems.length === 0} />
+      </View>
+    </View>
   );
-};
+}
 
-// 3. Hook Personalizado para usar el Carrito
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error('useCart debe ser utilizado dentro de un CartProvider');
-  }
-  return context;
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    paddingTop: 40,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    padding: 20,
+    backgroundColor: '#fff',
+    color: '#003366',
+  },
+  item: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginVertical: 5,
+    marginHorizontal: 10,
+    padding: 10,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  info: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  price: {
+    fontSize: 16,
+    color: '#007bff',
+    fontWeight: 'bold',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  qtyBtn: {
+    width: 30,
+    height: 30,
+    backgroundColor: '#007bff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  qtyText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  qty: {
+    marginHorizontal: 15,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  remove: {
+    marginLeft: 'auto',
+    padding: 5,
+  },
+  empty: {
+    textAlign: 'center',
+    marginTop: 50,
+    fontSize: 16,
+    color: '#888',
+  },
+  footer: {
+    padding: 20,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  subtotal: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#003366',
+  },
+});

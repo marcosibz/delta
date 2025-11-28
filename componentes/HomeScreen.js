@@ -1,8 +1,9 @@
+/* filepath: c:\Users\SOY DE RIVER\OneDrive\Escritorio\delta\componentes\HomeScreen.js */
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from './CartScreen'; 
+import { useCart } from './CartContext';
 
 const ProductCard = ({ product, addToCart }) => {
   const handleAddToCart = () => {
@@ -11,9 +12,9 @@ const ProductCard = ({ product, addToCart }) => {
 
   return (
     <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
-      <Image 
-        source={{ uri: product.image }} 
-        style={styles.productImage} 
+      <Image
+        source={{ uri: product.image }}
+        style={styles.productImage}
         onError={(e) => console.log('Error loading image', e.nativeEvent?.error)}
       />
       <View style={styles.infoContainer}>
@@ -23,10 +24,7 @@ const ProductCard = ({ product, addToCart }) => {
         <Text style={[styles.productPrice, { color: '#007bff' }]}>
           ${product.price.toFixed(2)}
         </Text>
-        <TouchableOpacity 
-          style={styles.addButton}
-          onPress={handleAddToCart}
-        >
+        <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
           <Ionicons name="cart-outline" size={20} color="#fff" />
           <Text style={styles.addText}>Añadir</Text>
         </TouchableOpacity>
@@ -60,7 +58,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={() => (
-            <Text style={styles.sectionTitle}>Nuevos Productos</Text>
+          <Text style={styles.sectionTitle}>Nuevos Productos</Text>
         )}
       />
       <StatusBar style="dark" />
@@ -72,7 +70,7 @@ const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
     backgroundColor: '#e9f2ff',
-    paddingTop: 0, 
+    paddingTop: 0,
   },
   header: {
     paddingTop: 40,
@@ -95,13 +93,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#003366',
   },
-  searchButton: {
-    padding: 5,
-  },
-  listContainer: {
-    paddingHorizontal: 10,
-    paddingBottom: 20,
-  },
+  searchButton: { padding: 5 },
+  listContainer: { paddingHorizontal: 10, paddingBottom: 20 },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
@@ -110,10 +103,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: '#003366',
   },
-  columnWrapper: {
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
+  columnWrapper: { justifyContent: 'space-between', marginBottom: 10 },
   card: {
     flex: 1,
     marginHorizontal: 5,
@@ -126,27 +116,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 4,
   },
-  productImage: {
-    width: '100%',
-    height: 180,
-    resizeMode: 'cover',
-    marginBottom: 5,
-  },
-  infoContainer: {
-    padding: 8,
-    alignItems: 'center',
-  },
-  productName: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  productPrice: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
+  productImage: { width: '100%', height: 180, resizeMode: 'cover', marginBottom: 5 },
+  infoContainer: { padding: 8, alignItems: 'center' },
+  productName: { fontSize: 14, fontWeight: '500', marginBottom: 4, textAlign: 'center' },
+  productPrice: { fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -156,9 +129,5 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginTop: 5,
   },
-  addText: {
-    color: '#fff',
-    marginLeft: 5,
-    fontWeight: 'bold',
-  }
+  addText: { color: '#fff', marginLeft: 5, fontWeight: 'bold' },
 });

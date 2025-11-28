@@ -11,27 +11,75 @@ import {
   Platform,
   ScrollView
 } from 'react-native';
+import { useUser } from './UserContext';
 
-export default function LoginScreen({ navigation, route, onLogin }) {
-  const realOnLogin = onLogin || (route?.params?.onLogin);
+export default function LoginScreen({ navigation }) {
+  const { login } = useUser();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!correo.trim() || !password.trim()) {
+      Alert.alert('Error', 'Completa todos los campos');
+      return;
+    }
+
+    setLoading(true);
+    console.log('Intentando login con:', correo);
+
     try {
       const response = await fetch('http://192.168.100.7:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo, contraseña: password }),
+        body: JSON.stringify({ 
+          correo: correo.trim(), 
+          contrasena: password 
+        }),
       });
+
       const data = await response.json();
+      console.log('Respuesta del servidor:', data);
+
       if (response.ok && data.ok) {
-        if (realOnLogin) realOnLogin();
+        console.log('Login exitoso');
+        
+        // Guardar datos del usuario en el contexto
+        login({ 
+          nombre: data.usuario || correo.split('@')[0], 
+          correo: correo.trim(),
+          foto: data.foto || null 
+        });
+        
+        Alert.alert('Bienvenido', `Hola ${data.usuario}!`);
       } else {
-        Alert.alert('Error', 'Datos incorrectos');
+        // Credenciales incorrectas
+        Alert.alert('Error', data.message || 'Datos incorrectos');
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo conectar al servidor');
+      console.error('Error de conexión:', error);
+      
+      // Servidor no disponible - ofrecer modo de prueba
+      Alert.alert(
+        'Servidor no disponible',
+        'No se pudo conectar al servidor. ¿Quieres usar modo de prueba?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Modo Prueba',
+            onPress: () => {
+              console.log('Activando modo prueba');
+              login({ 
+                nombre: correo.split('@')[0] || 'Usuario Prueba', 
+                correo: correo.trim() || 'prueba@test.com', 
+                foto: null 
+              });
+            }
+          }
+        ]
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,24 +92,23 @@ export default function LoginScreen({ navigation, route, onLogin }) {
         contentContainerStyle={styles.scrollContent} 
         keyboardShouldPersistTaps="handled"
       >
-        {/* LOGO */}
         <Image 
-          source={{ uri: 'https://placehold.co/120x120/007bff/ffffff?text=LOGO' }}
+          source={require('../assets/icon.png')}
           style={styles.logo}
         />
 
-        {/* TARJETA DE LOGIN */}
         <View style={styles.card}>
           <Text style={styles.title}>Iniciar Sesión</Text>
 
           <TextInput
             style={styles.input}
-            placeholder="Correo"
+            placeholder="Correo electrónico"
             placeholderTextColor="#7a7a7a"
             value={correo}
             onChangeText={setCorreo}
             autoCapitalize="none"
             keyboardType="email-address"
+            editable={!loading}
           />
 
           <TextInput
@@ -71,10 +118,23 @@ export default function LoginScreen({ navigation, route, onLogin }) {
             secureTextEntry
             value={password}
             onChangeText={setPassword}
+            editable={!loading}
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Acceder</Text>
+          <TouchableOpacity 
+            style={[styles.button, loading && styles.buttonDisabled]} 
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Iniciando sesión...' : 'Acceder'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
+            <Text style={styles.registerText}>
+              ¿No tienes cuenta? <Text style={styles.link}>Regístrate</Text>
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -140,9 +200,22 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems: 'center',
   },
+  buttonDisabled: {
+    backgroundColor: '#6c757d',
+  },
   buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+  },
+  registerText: {
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 16,
+    fontSize: 15,
+  },
+  link: {
+    color: '#007bff',
+    fontWeight: 'bold',
   },
 });

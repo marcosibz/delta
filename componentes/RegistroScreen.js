@@ -1,34 +1,95 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { useUser } from './UserContext';
 
-export default function RegistroScreen({ navigation, onRegistrado }) {
+export default function RegistroScreen({ navigation }) {
+  const { login } = useUser();
   const [correo, setCorreo] = useState('');
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    if (!correo.trim() || !usuario.trim() || !password.trim()) {
+      Alert.alert('Error', 'Completa todos los campos');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    setLoading(true);
+    const body = { 
+      correo: correo.trim(), 
+      usuario: usuario.trim(), 
+      contrasena: password 
+    };
+
+    console.log('📤 Registrando usuario:', body);
+
     try {
       const response = await fetch('http://192.168.100.7:3000/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          correo,
-          usuario,
-          contraseña: password
-        }),
+        body: JSON.stringify(body),
       });
+
       const data = await response.json();
-      if (response.ok) {
-        Alert.alert('Éxito', 'Usuario registrado correctamente');
+      console.log('Respuesta del servidor:', data);
+
+      if (response.ok && data.ok) {
+        console.log('Registro exitoso');
+        
+        Alert.alert(
+          'Éxito', 
+          data.message || 'Usuario registrado correctamente',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                // Auto-login después del registro
+                login({ 
+                  nombre: usuario.trim(), 
+                  correo: correo.trim(), 
+                  foto: null 
+                });
+              }
+            }
+          ]
+        );
+        
         setCorreo('');
         setUsuario('');
         setPassword('');
-        onRegistrado();
       } else {
         Alert.alert('Error', data.error || 'Error al registrar usuario');
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo conectar al servidor');
+      console.error('Error de conexión:', error);
+      
+      // Servidor no disponible - ofrecer modo de prueba
+      Alert.alert(
+        'Servidor no disponible',
+        'No se pudo conectar al servidor. ¿Quieres usar modo de prueba?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Modo Prueba',
+            onPress: () => {
+              console.log('🧪 Activando modo prueba - REGISTRO');
+              login({ 
+                nombre: usuario.trim() || 'Usuario Prueba', 
+                correo: correo.trim() || 'prueba@test.com', 
+                foto: null 
+              });
+            }
+          }
+        ]
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,38 +99,47 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
 
       <TextInput
         style={styles.input}
-        placeholder="Correo"
+        placeholder="Correo electrónico"
         placeholderTextColor="#7a7a7a"
         value={correo}
         onChangeText={setCorreo}
         autoCapitalize="none"
+        keyboardType="email-address"
+        editable={!loading}
       />
 
       <TextInput
         style={styles.input}
-        placeholder="Usuario"
+        placeholder="Nombre de usuario"
         placeholderTextColor="#7a7a7a"
         value={usuario}
         onChangeText={setUsuario}
-        autoCapitalize="none"
+        autoCapitalize="words"
+        editable={!loading}
       />
 
       <TextInput
         style={styles.input}
-        placeholder="Contraseña"
+        placeholder="Contraseña (mínimo 6 caracteres)"
         placeholderTextColor="#7a7a7a"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        editable={!loading}
       />
 
       <View style={styles.buttonContainer}>
-        <Button title="Registrar" color="#007bff" onPress={handleRegister} />
+        <Button 
+          title={loading ? "Registrando..." : "Registrar"} 
+          color="#007bff" 
+          onPress={handleRegister}
+          disabled={loading}
+        />
       </View>
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.loginText}>
-          ¿Tienes una cuenta? <Text style={styles.link}>Acceder</Text>
+          ¿Ya tienes cuenta? <Text style={styles.link}>Iniciar sesión</Text>
         </Text>
       </TouchableOpacity>
     </View>
@@ -79,7 +149,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#e9f2ff', // fondo azul suave
+    backgroundColor: '#e9f2ff',
     justifyContent: 'center',
     paddingHorizontal: 20,
     alignItems: 'center',
@@ -87,7 +157,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#0056b3', // azul oscuro del título
+    color: '#0056b3',
     marginBottom: 25,
     textAlign: 'center',
   },
@@ -108,7 +178,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     marginTop: 10,
-    elevation: 3, // sombra del botón
+    elevation: 3,
   },
   loginText: {
     color: '#333',
