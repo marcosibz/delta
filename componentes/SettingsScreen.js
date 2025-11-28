@@ -1,63 +1,148 @@
-import React from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  LayoutAnimation, 
+  Platform, 
+  UIManager 
+} from 'react-native';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
+
+if (Platform.OS === 'android') {
+  UIManager.setLayoutAnimationEnabledExperimental &&
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 export default function SettingsScreen() {
 
-  const handlePress = (option) => {
-    Alert.alert('Opción seleccionada', `Has tocado: ${option}`);
+  // Estados de acordeones
+  const [openSection, setOpenSection] = useState(null);
+
+  const toggleSection = (section) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setOpenSection(openSection === section ? null : section);
   };
- 
+
   return (
     <View style={styles.container}>
-
       <Text style={styles.title}>Ajustes</Text>
 
-      {/* Opciones */}
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Editar Perfil")}>
+      {/* Editar Perfil */}
+      <TouchableOpacity style={styles.option} onPress={() => toggleSection("perfil")}>
         <View style={styles.row}>
           <Feather name="user" size={22} color="#004080" />
           <Text style={styles.optionText}>Editar Perfil</Text>
         </View>
-        <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
+        <MaterialIcons 
+          name={openSection === "perfil" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
+          size={24} 
+          color="#004080" 
+        />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Notificaciones")}>
+      {openSection === "perfil" && (
+        <View style={styles.subMenu}>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Cambiar nombre</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Cambiar foto</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Modificar correo</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Notificaciones */}
+      <TouchableOpacity style={styles.option} onPress={() => toggleSection("notificaciones")}>
         <View style={styles.row}>
           <Ionicons name="notifications-outline" size={22} color="#004080" />
           <Text style={styles.optionText}>Notificaciones</Text>
         </View>
-        <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
+        <MaterialIcons 
+          name={openSection === "notificaciones" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
+          size={24} 
+          color="#004080" 
+        />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Idioma")}>
+      {openSection === "notificaciones" && (
+        <View style={styles.subMenu}>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Activar notificaciones</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Desactivar sonido</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Idioma */}
+      <TouchableOpacity style={styles.option} onPress={() => toggleSection("idioma")}>
         <View style={styles.row}>
           <Ionicons name="language-outline" size={22} color="#004080" />
           <Text style={styles.optionText}>Idioma</Text>
         </View>
-        <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
+        <MaterialIcons 
+          name={openSection === "idioma" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
+          size={24} 
+          color="#004080" 
+        />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => handlePress("Privacidad")}>
+      {openSection === "idioma" && (
+        <View style={styles.subMenu}>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Español</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Inglés</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Privacidad */}
+      <TouchableOpacity style={styles.option} onPress={() => toggleSection("privacidad")}>
         <View style={styles.row}>
           <Feather name="lock" size={22} color="#004080" />
           <Text style={styles.optionText}>Privacidad</Text>
         </View>
-        <MaterialIcons name="keyboard-arrow-right" size={24} color="#004080" />
+        <MaterialIcons 
+          name={openSection === "privacidad" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
+          size={24} 
+          color="#004080" 
+        />
       </TouchableOpacity>
 
-      {/* Botón Cerrar Sesión */}
-      <TouchableOpacity style={[styles.option, styles.logoutButton]} onPress={() => handlePress("Cerrar Sesión")}>
+      {openSection === "privacidad" && (
+        <View style={styles.subMenu}>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Cambiar contraseña</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.subItem}>
+            <Text style={styles.subText}>Eliminar cuenta</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Cerrar Sesión */}
+      <TouchableOpacity style={[styles.option, styles.logoutButton]}>
         <View style={styles.row}>
           <MaterialIcons name="logout" size={22} color="#fff" />
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </View>
       </TouchableOpacity>
-
     </View>
   );
 }
 
+
+// ESTILOS
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -78,11 +163,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#80BFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -95,6 +175,23 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 17,
     color: '#004080',
+  },
+  subMenu: {
+    backgroundColor: "#fff",
+    paddingLeft: 25,
+    marginTop: -10,
+    marginBottom: 15,
+    borderLeftWidth: 3,
+    borderLeftColor: "#007BFF",
+    borderRadius: 10,
+    paddingVertical: 10
+  },
+  subItem: {
+    paddingVertical: 8,
+  },
+  subText: {
+    fontSize: 15,
+    color: "#004080",
   },
   logoutButton: {
     backgroundColor: '#007BFF',
