@@ -27,7 +27,7 @@ export default function RegistroScreen({ navigation }) {
       contrasena: password 
     };
 
-    console.log('📤 Registrando usuario:', body);
+    console.log('Registrando usuario:', body);
 
     try {
       const response = await fetch('http://192.168.100.7:3000/usuarios', {
