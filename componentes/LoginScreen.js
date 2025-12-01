@@ -1,3 +1,4 @@
+// ...existing code...
 import React, { useState } from 'react';
 import { 
   View, 
@@ -17,21 +18,33 @@ export default function LoginScreen({ navigation, route, onLogin }) {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
+  // Ajusta este nombre según tu App.js: 'MainTabs' o 'HomeScreen'
+  const HOME_ROUTE = 'MainTabs';
+
   const handleLogin = async () => {
     try {
       const response = await fetch('http://192.168.100.7:3000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo, contraseña: password }),
+        body: JSON.stringify({ correo, contrasena: password }),
       });
+
       const data = await response.json();
+      console.log('login response ->', data);
+
       if (response.ok && data.ok) {
+        // Ejecuta el callback que cambia el estado (si fue pasado)
         if (realOnLogin) realOnLogin();
+
+        // Limpia el stack y lleva a la pantalla principal
+        navigation.reset({ index: 0, routes: [{ name: HOME_ROUTE }] });
       } else {
-        Alert.alert('Error', 'Datos incorrectos');
+        const msg = typeof data === 'string' ? data : (data?.message || JSON.stringify(data));
+        Alert.alert('Error', msg || 'Datos incorrectos');
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudo conectar al servidor');
+      console.error('login error', error);
+      Alert.alert('Error', error.message || 'No se pudo conectar al servidor');
     }
   };
 
@@ -82,6 +95,7 @@ export default function LoginScreen({ navigation, route, onLogin }) {
   );
 }
 
+// ...existing code...
 const styles = StyleSheet.create({
   container: {
     flex: 1,

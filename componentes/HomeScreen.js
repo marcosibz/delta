@@ -1,11 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { useTheme } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from './CartScreen'; 
+import { useCart } from './CartContext';
 
-const ProductCard = ({ product, addToCart, colors }) => {
+const ProductCard = ({ product, addToCart }) => {
   const handleAddToCart = () => {
     addToCart(product);
   };
@@ -14,8 +13,8 @@ const ProductCard = ({ product, addToCart, colors }) => {
     <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
       <Image 
         source={{ uri: product.image }} 
-        style={styles.productImage} 
-        onError={(e) => console.log('Error loading image', e.nativeEvent.error)}
+        style={styles.productImage}
+        onError={(e) => console.log('Error loading image', e.nativeEvent?.error)}
       />
       <View style={styles.infoContainer}>
         <Text style={[styles.productName, { color: '#003366' }]} numberOfLines={2}>
@@ -56,12 +55,12 @@ export default function HomeScreen() {
       <FlatList
         data={DUMMY_PRODUCTS}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={() => (
-            <Text style={styles.sectionTitle}>Nuevos Productos</Text>
+          <Text style={styles.sectionTitle}>Nuevos Productos</Text>
         )}
       />
       <StatusBar style="dark" />
@@ -73,7 +72,7 @@ const styles = StyleSheet.create({
   fullContainer: {
     flex: 1,
     backgroundColor: '#e9f2ff',
-    paddingTop: 0, 
+    paddingTop: 0,
   },
   header: {
     paddingTop: 40,
@@ -161,6 +160,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 5,
     fontWeight: 'bold',
-  }
+  },
 });
-
