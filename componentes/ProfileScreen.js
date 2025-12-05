@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useUser } from './UserContext';
 import { useTheme } from './ThemeContext';
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ navigation }) {
   const { user, updateUser, logout } = useUser();
   const { theme } = useTheme();
 
@@ -48,6 +48,22 @@ export default function ProfileScreen() {
         }
       ]
     );
+  };
+
+  const handleMenuPress = (item) => {
+    switch (item) {
+      case 'Mi cuenta':
+        navigation.navigate('EditAccount');
+        break;
+      case 'Mis compras':
+        navigation.navigate('MyPurchases');
+        break;
+      case 'Configuración':
+        navigation.navigate('Configuración');
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -101,6 +117,7 @@ export default function ProfileScreen() {
           (item, idx) => (
             <TouchableOpacity
               key={idx}
+              onPress={() => handleMenuPress(item)}
               style={[
                 styles.menuItem,
                 {

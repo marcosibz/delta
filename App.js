@@ -11,6 +11,8 @@ import HomeScreen from './componentes/HomeScreen';
 import ProfileScreen from './componentes/ProfileScreen';
 import SettingsScreen from './componentes/SettingsScreen';
 import CartScreen from './componentes/CartScreen';
+import EditAccountScreen from './componentes/EditAccountScreen';
+import MyPurchasesScreen from './componentes/MyPurchasesScreen';
 
 import { CartProvider } from './componentes/CartContext';
 import { UserProvider, useUser } from './componentes/UserContext';
@@ -61,7 +63,7 @@ function MainTabs() {
       />
       <Tab.Screen
         name="Mi Perfil"
-        component={ProfileScreen}
+        component={ProfileStack}
         options={{
           tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
         }}
@@ -74,6 +76,56 @@ function MainTabs() {
         }}
       />
     </Tab.Navigator>
+  );
+}
+
+function ProfileStack() {
+  const { theme } = useTheme();
+  
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: theme.itemBg,
+        },
+        headerTintColor: theme.text,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}
+    >
+      <Stack.Screen
+        name="ProfileMain"
+        component={ProfileScreen}
+        options={{
+          headerTitle: 'Mi Perfil',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="EditAccount"
+        component={EditAccountScreen}
+        options={{
+          headerTitle: 'Editar Cuenta',
+        }}
+      />
+      <Stack.Screen
+        name="MyPurchases"
+        component={MyPurchasesScreen}
+        options={{
+          headerTitle: 'Mis Compras',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Configuración"
+        component={SettingsScreen}
+        options={{
+          headerTitle: 'Configuración',
+        }}
+      />
+    </Stack.Navigator>
   );
 }
 
