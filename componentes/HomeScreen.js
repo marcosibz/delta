@@ -1,26 +1,50 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Modal } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from './CartContext';
+import { useFavorites } from './FavoritesContext';
+import { useLanguage } from './LanguageContext';
+import FavoritesScreen from './FavoritesScreen';
 
-const ProductCard = ({ product, addToCart }) => {
+const ProductCard = ({ product, addToCart, isDarkMode }) => {
+  const { toggleFavorite, isFavorite } = useFavorites();
+  const { t } = useLanguage();
+  const [localFav, setLocalFav] = useState(isFavorite(product.id));
+
   const handleAddToCart = () => {
     addToCart(product);
   };
 
+  const handleToggleFavorite = async () => {
+    const success = await toggleFavorite(product);
+    if (success !== false) {
+      setLocalFav(!localFav);
+    }
+  };
+
   return (
-    <View style={[styles.card, { backgroundColor: '#e9f2ff', borderColor: '#b0d0ff' }]}>
+    <View style={[styles.card, { backgroundColor: isDarkMode ? '#1f1f1f' : '#e9f2ff', borderColor: isDarkMode ? '#2a2a2a' : '#b0d0ff' }]}>
+      <TouchableOpacity 
+        style={styles.favoriteBtn}
+        onPress={handleToggleFavorite}
+      >
+        <Ionicons 
+          name={localFav ? "heart" : "heart-outline"} 
+          size={22} 
+          color={localFav ? "#ff4757" : (isDarkMode ? '#888' : '#666')} 
+        />
+      </TouchableOpacity>
       <Image 
-        source={{ uri: product.image }} 
+        source={product.image} 
         style={styles.productImage}
-        onError={(e) => console.log('Error loading image', e.nativeEvent?.error)}
+        resizeMode="cover"
       />
       <View style={styles.infoContainer}>
-        <Text style={[styles.productName, { color: '#003366' }]} numberOfLines={2}>
+        <Text style={[styles.productName, { color: isDarkMode ? '#fff' : '#003366' }]} numberOfLines={2}>
           {product.name}
         </Text>
-        <Text style={[styles.productPrice, { color: '#007bff' }]}>
+        <Text style={[styles.productPrice, { color: isDarkMode ? '#03DAC6' : '#007bff' }]}>
           ${product.price.toFixed(2)}
         </Text>
         <TouchableOpacity 
@@ -28,29 +52,53 @@ const ProductCard = ({ product, addToCart }) => {
           onPress={handleAddToCart}
         >
           <Ionicons name="cart-outline" size={20} color="#fff" />
-          <Text style={styles.addText}>Añadir</Text>
+          <Text style={styles.addText}>{t('addToCart')}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default function HomeScreen() {
+export default function HomeScreen({ isDarkMode = false }) {
   const { addToCart, getProducts } = useCart();
+  const { favorites } = useFavorites();
+  const { t } = useLanguage();
+  const [showFavorites, setShowFavorites] = useState(false);
   const DUMMY_PRODUCTS = getProducts();
 
   const renderItem = ({ item }) => (
-    <ProductCard product={item} addToCart={addToCart} />
+    <ProductCard product={item} addToCart={addToCart} isDarkMode={isDarkMode} />
   );
 
   return (
-    <View style={styles.fullContainer}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>DELTASTYLE Store</Text>
-        <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search-outline" size={24} color="#003366" />
-        </TouchableOpacity>
+    <View style={[styles.fullContainer, { backgroundColor: isDarkMode ? '#0d1117' : '#e9f2ff' }]}>
+      <View style={[styles.header, { backgroundColor: isDarkMode ? '#1f1f1f' : '#cfe4ff', borderBottomColor: isDarkMode ? '#2a2a2a' : '#a8cfff' }]}>
+        <Text style={[styles.headerTitle, { color: isDarkMode ? '#fff' : '#003366' }]}>DELTASTYLE Store</Text>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => setShowFavorites(true)}
+          >
+            <Ionicons name="heart" size={24} color={isDarkMode ? '#ff4757' : '#ff4757'} />
+            {favorites.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{favorites.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
+
+      <Modal
+        visible={showFavorites}
+        animationType="slide"
+        onRequestClose={() => setShowFavorites(false)}
+      >
+        <FavoritesScreen 
+          isDarkMode={isDarkMode} 
+          onClose={() => setShowFavorites(false)} 
+        />
+      </Modal>
 
       <FlatList
         data={DUMMY_PRODUCTS}
@@ -60,7 +108,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.columnWrapper}
         ListHeaderComponent={() => (
-          <Text style={styles.sectionTitle}>Nuevos Productos</Text>
+          <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#003366' }]}>Nuevos Productos</Text>
         )}
       />
       <StatusBar style="dark" />
@@ -95,8 +143,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#003366',
   },
-  searchButton: {
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 15,
+  },
+  iconButton: {
     padding: 5,
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: '#ff4757',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   listContainer: {
     paddingHorizontal: 10,
@@ -125,11 +194,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 4,
+    position: 'relative',
+  },
+  favoriteBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 20,
+    padding: 6,
+    elevation: 3,
   },
   productImage: {
     width: '100%',
     height: 180,
-    resizeMode: 'cover',
     marginBottom: 5,
   },
   infoContainer: {

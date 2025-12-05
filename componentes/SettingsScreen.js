@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -9,16 +9,41 @@ import {
   UIManager 
 } from 'react-native';
 import { MaterialIcons, Ionicons, Feather } from '@expo/vector-icons';
+import { useLanguage } from './LanguageContext';
+import { useUser } from './UserContext';
+import * as Notifications from 'expo-notifications';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export default function SettingsScreen() {
+export default function SettingsScreen({ isDarkMode = false }) {
+  const { language, changeLanguage, t } = useLanguage();
+  const { logout } = useUser();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   // Estados de acordeones
   const [openSection, setOpenSection] = useState(null);
+
+  useEffect(() => {
+    checkNotificationPermissions();
+  }, []);
+
+  const checkNotificationPermissions = async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    setNotificationsEnabled(status === 'granted');
+  };
+
+  const toggleNotifications = async () => {
+    if (notificationsEnabled) {
+      // No se pueden desactivar programáticamente, solo informar al usuario
+      setNotificationsEnabled(false);
+    } else {
+      const { status } = await Notifications.requestPermissionsAsync();
+      setNotificationsEnabled(status === 'granted');
+    }
+  };
 
   const toggleSection = (section) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -26,115 +51,83 @@ export default function SettingsScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Ajustes</Text>
-
-      {/* Editar Perfil */}
-      <TouchableOpacity style={styles.option} onPress={() => toggleSection("perfil")}>
-        <View style={styles.row}>
-          <Feather name="user" size={22} color="#004080" />
-          <Text style={styles.optionText}>Editar Perfil</Text>
-        </View>
-        <MaterialIcons 
-          name={openSection === "perfil" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
-          size={24} 
-          color="#004080" 
-        />
-      </TouchableOpacity>
-
-      {openSection === "perfil" && (
-        <View style={styles.subMenu}>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Cambiar nombre</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Cambiar foto</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Modificar correo</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+    <View style={[styles.container, { backgroundColor: isDarkMode ? '#0d1117' : '#E6F0FA' }]}>
+      <Text style={[styles.title, { color: isDarkMode ? '#fff' : '#004080' }]}>{t('settings')}</Text>
 
       {/* Notificaciones */}
-      <TouchableOpacity style={styles.option} onPress={() => toggleSection("notificaciones")}>
+      <TouchableOpacity style={[styles.option, { backgroundColor: isDarkMode ? '#1f1f1f' : '#FFFFFF', borderColor: isDarkMode ? '#2a2a2a' : '#80BFFF' }]} onPress={() => toggleSection("notificaciones")}>
         <View style={styles.row}>
-          <Ionicons name="notifications-outline" size={22} color="#004080" />
-          <Text style={styles.optionText}>Notificaciones</Text>
+          <Ionicons name="notifications-outline" size={22} color={isDarkMode ? '#03DAC6' : '#004080'} />
+          <Text style={[styles.optionText, { color: isDarkMode ? '#fff' : '#004080' }]}>{t('notifications')}</Text>
         </View>
         <MaterialIcons 
           name={openSection === "notificaciones" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
           size={24} 
-          color="#004080" 
+          color={isDarkMode ? '#03DAC6' : '#004080'} 
         />
       </TouchableOpacity>
 
       {openSection === "notificaciones" && (
-        <View style={styles.subMenu}>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Activar notificaciones</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Desactivar sonido</Text>
+        <View style={[styles.subMenu, { backgroundColor: isDarkMode ? '#1f1f1f' : '#fff', borderLeftColor: isDarkMode ? '#03DAC6' : '#007BFF' }]}>
+          <TouchableOpacity 
+            style={styles.subItem}
+            onPress={toggleNotifications}
+          >
+            <Text style={[styles.subText, { color: isDarkMode ? '#fff' : '#004080' }]}>
+              {notificationsEnabled ? (language === 'es' ? 'No permitir' : 'Disable') : (language === 'es' ? 'Permitir' : 'Allow')}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
       {/* Idioma */}
-      <TouchableOpacity style={styles.option} onPress={() => toggleSection("idioma")}>
+      <TouchableOpacity style={[styles.option, { backgroundColor: isDarkMode ? '#1f1f1f' : '#FFFFFF', borderColor: isDarkMode ? '#2a2a2a' : '#80BFFF' }]} onPress={() => toggleSection("idioma")}>
         <View style={styles.row}>
-          <Ionicons name="language-outline" size={22} color="#004080" />
-          <Text style={styles.optionText}>Idioma</Text>
+          <Ionicons name="language-outline" size={22} color={isDarkMode ? '#03DAC6' : '#004080'} />
+          <Text style={[styles.optionText, { color: isDarkMode ? '#fff' : '#004080' }]}>{t('language')}</Text>
         </View>
         <MaterialIcons 
           name={openSection === "idioma" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
           size={24} 
-          color="#004080" 
+          color={isDarkMode ? '#03DAC6' : '#004080'} 
         />
       </TouchableOpacity>
 
       {openSection === "idioma" && (
-        <View style={styles.subMenu}>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Español</Text>
+        <View style={[styles.subMenu, { backgroundColor: isDarkMode ? '#1f1f1f' : '#fff', borderLeftColor: isDarkMode ? '#03DAC6' : '#007BFF' }]}>
+          <TouchableOpacity 
+            style={[styles.subItem, language === 'es' && { backgroundColor: isDarkMode ? '#2a2a2a' : '#e3f2fd' }]}
+            onPress={() => changeLanguage('es')}
+          >
+            <Text style={[styles.subText, { 
+              color: isDarkMode ? '#fff' : '#004080',
+              fontWeight: language === 'es' ? 'bold' : 'normal'
+            }]}>
+              {t('spanish')} {language === 'es' && '✓'}
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Inglés</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {/* Privacidad */}
-      <TouchableOpacity style={styles.option} onPress={() => toggleSection("privacidad")}>
-        <View style={styles.row}>
-          <Feather name="lock" size={22} color="#004080" />
-          <Text style={styles.optionText}>Privacidad</Text>
-        </View>
-        <MaterialIcons 
-          name={openSection === "privacidad" ? "keyboard-arrow-up" : "keyboard-arrow-right"} 
-          size={24} 
-          color="#004080" 
-        />
-      </TouchableOpacity>
-
-      {openSection === "privacidad" && (
-        <View style={styles.subMenu}>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Cambiar contraseña</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.subItem}>
-            <Text style={styles.subText}>Eliminar cuenta</Text>
+          <TouchableOpacity 
+            style={[styles.subItem, language === 'en' && { backgroundColor: isDarkMode ? '#2a2a2a' : '#e3f2fd' }]}
+            onPress={() => changeLanguage('en')}
+          >
+            <Text style={[styles.subText, { 
+              color: isDarkMode ? '#fff' : '#004080',
+              fontWeight: language === 'en' ? 'bold' : 'normal'
+            }]}>
+              {t('english')} {language === 'en' && '✓'}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
       {/* Cerrar Sesión */}
-      <TouchableOpacity style={[styles.option, styles.logoutButton]}>
+      <TouchableOpacity 
+        style={[styles.option, styles.logoutButton]}
+        onPress={logout}
+      >
         <View style={styles.row}>
           <MaterialIcons name="logout" size={22} color="#fff" />
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
+          <Text style={styles.logoutText}>{language === 'es' ? 'Cerrar Sesión' : 'Logout'}</Text>
         </View>
       </TouchableOpacity>
     </View>

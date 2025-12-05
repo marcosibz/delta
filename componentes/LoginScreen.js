@@ -1,43 +1,55 @@
-// ...existing code...
 import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   TextInput, 
-  TouchableOpacity, 
+  Button, 
   StyleSheet, 
   Alert,
+  TouchableOpacity,
   Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView
 } from 'react-native';
+import { useUser } from './UserContext';
 
-export default function LoginScreen({ navigation, route, onLogin }) {
-  const realOnLogin = onLogin || (route?.params?.onLogin);
+const BASE_URL = 'http://192.168.100.7:3000';
+
+export default function LoginScreen({ navigation }) {
+  const { login } = useUser();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
-  // Ajusta este nombre según tu App.js: 'MainTabs' o 'HomeScreen'
-  const HOME_ROUTE = 'MainTabs';
-
   const handleLogin = async () => {
+    if (!correo.trim() || !password.trim()) {
+      Alert.alert('Error', 'Completa correo y contraseña');
+      return;
+    }
+
+    console.log('LOGIN payload:', { correo: correo.trim(), contrasena: password });
+
     try {
-      const response = await fetch('http://192.168.100.7:3000/login', {
+      const response = await fetch(`${BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo, contrasena: password }),
+        body: JSON.stringify({ correo: correo.trim(), contrasena: password }),
       });
 
       const data = await response.json();
-      console.log('login response ->', data);
+      console.log('login response:', data);
 
       if (response.ok && data.ok) {
-        // Ejecuta el callback que cambia el estado (si fue pasado)
-        if (realOnLogin) realOnLogin();
-
-        // Limpia el stack y lleva a la pantalla principal
-        navigation.reset({ index: 0, routes: [{ name: HOME_ROUTE }] });
+        // Actualizar el contexto de usuario con los datos recibidos
+        await login({
+          id: data.user.id,
+          nombre: data.user.usuario || '',
+          correo: data.user.correo || '',
+          foto: null,
+          esAdmin: data.user.esAdmin || false,
+        });
+        
+        Alert.alert('Éxito', 'Login exitoso');
       } else {
         const msg = typeof data === 'string' ? data : (data?.message || JSON.stringify(data));
         Alert.alert('Error', msg || 'Datos incorrectos');
@@ -86,8 +98,14 @@ export default function LoginScreen({ navigation, route, onLogin }) {
             onChangeText={setPassword}
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Acceder</Text>
+          <View style={styles.buttonContainer}>
+            <Button title="Acceder" color="#007bff" onPress={handleLogin} />
+          </View>
+
+          <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
+            <Text style={styles.newText}>
+              Es la primera vez que entras? <Text style={styles.link}>Registrarme</Text>
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -95,7 +113,6 @@ export default function LoginScreen({ navigation, route, onLogin }) {
   );
 }
 
-// ...existing code...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -147,16 +164,7 @@ const styles = StyleSheet.create({
     color: '#333',
     backgroundColor: '#f8fbff',
   },
-  button: {
-    backgroundColor: '#007bff',
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
+  buttonContainer: { width: '100%', borderRadius: 8, overflow: 'hidden', marginTop: 10, elevation: 3 },
+  newText: { color: '#333', textAlign: 'center', marginTop: 16, fontSize: 15 },
+  link: { color: '#007bff', fontWeight: 'bold' },
 });

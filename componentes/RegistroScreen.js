@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 
+const BASE_URL = 'http://192.168.100.7:3000';
+
 export default function RegistroScreen({ navigation, onRegistrado }) {
   const [correo, setCorreo] = useState('');
   const [usuario, setUsuario] = useState('');
@@ -18,7 +20,7 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
     console.log('Registro: body ->', body);
 
     try {
-      const response = await fetch('http://192.168.100.7:3000/usuarios', {
+      const response = await fetch(`${BASE_URL}/usuarios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -32,12 +34,16 @@ export default function RegistroScreen({ navigation, onRegistrado }) {
         setCorreo('');
         setUsuario('');
         setPassword('');
-        onRegistrado();
+        // Opción 1: ir directo a Home (si quieres auto-login)
+        // navigation.replace('Home');
+        // Opción 2: ir a Login para que el usuario se logee
+        navigation.navigate('Login');
       } else {
-        alert('Error', data.error || 'Error al registrar usuario');
+        Alert.alert('Error', data.error || data.message || 'Error al registrar usuario');
       }
     } catch (error) {
-      alert('Error', 'No se pudo conectar al servidor');
+      console.error('Registro fetch error:', error);
+      Alert.alert('Error', 'No se pudo conectar al servidor');
     }
   };
 
